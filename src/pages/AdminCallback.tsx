@@ -19,8 +19,9 @@ export default function AdminCallback() {
             .eq('email', session.user.email ?? '')
             .single();
 
-          if (data?.slug) {
-            navigate(`/site/${data.slug}/admin`, { replace: true });
+          const row = data as unknown as { slug: string } | null;
+          if (row?.slug) {
+            navigate(`/site/${row.slug}/admin`, { replace: true });
           } else {
             // No site found — send to login with a message
             navigate('/admin/login?error=no_site', { replace: true });
