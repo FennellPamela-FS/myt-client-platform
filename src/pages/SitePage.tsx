@@ -13,7 +13,7 @@ export default function SitePage() {
   useEffect(() => {
     if (!slug) return;
     supabase
-      .from('client_sites')
+      .from('client_sites_saas')
       .select('*')
       .eq('slug', slug)
       .eq('status', 'active')

@@ -1,9 +1,9 @@
--- Migration: create client_sites
+-- Migration: create client_sites_saas
 -- Stores per-client site data for the standalone React platform.
 -- generated_copy = AI-produced content (immutable after generation)
 -- custom_edits   = client's manual changes (overlaid on top at render time)
 
-CREATE TABLE IF NOT EXISTS client_sites (
+CREATE TABLE IF NOT EXISTS client_sites_saas (
   id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   location_id    TEXT        NOT NULL UNIQUE,
   email          TEXT        NOT NULL,
@@ -20,26 +20,26 @@ CREATE TABLE IF NOT EXISTS client_sites (
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_client_sites_slug        ON client_sites (slug);
-CREATE INDEX IF NOT EXISTS idx_client_sites_location_id ON client_sites (location_id);
-CREATE INDEX IF NOT EXISTS idx_client_sites_email       ON client_sites (email);
+CREATE INDEX IF NOT EXISTS idx_client_sites_saas_slug        ON client_sites_saas (slug);
+CREATE INDEX IF NOT EXISTS idx_client_sites_saas_location_id ON client_sites_saas (location_id);
+CREATE INDEX IF NOT EXISTS idx_client_sites_saas_email       ON client_sites_saas (email);
 
 -- RLS
-ALTER TABLE client_sites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE client_sites_saas ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active sites (for the public-facing SitePage)
 CREATE POLICY "public_read_active"
-  ON client_sites FOR SELECT
+  ON client_sites_saas FOR SELECT
   USING (status = 'active');
 
 -- Authenticated users can read and update their own site
 CREATE POLICY "auth_read_own"
-  ON client_sites FOR SELECT
+  ON client_sites_saas FOR SELECT
   TO authenticated
   USING (email = auth.jwt() ->> 'email');
 
 CREATE POLICY "auth_update_own"
-  ON client_sites FOR UPDATE
+  ON client_sites_saas FOR UPDATE
   TO authenticated
   USING (email = auth.jwt() ->> 'email')
   WITH CHECK (email = auth.jwt() ->> 'email');

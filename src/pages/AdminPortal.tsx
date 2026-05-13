@@ -80,7 +80,7 @@ export default function AdminPortal() {
   useEffect(() => {
     if (!authChecked || !slug) return;
     supabase
-      .from('client_sites')
+      .from('client_sites_saas')
       .select('*')
       .eq('slug', slug)
       .single()
@@ -103,7 +103,7 @@ export default function AdminPortal() {
     if (!site) return;
     setSaving(true);
     await (supabase
-      .from('client_sites') as any)
+      .from('client_sites_saas') as any)
       .update({ custom_edits: edits })
       .eq('id', site.id);
     setSaving(false);

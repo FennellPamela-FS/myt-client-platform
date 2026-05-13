@@ -69,7 +69,7 @@ export function resolveSiteContent(site: ClientSite): SiteContent | null {
 export type Database = {
   public: {
     Tables: {
-      client_sites: {
+      client_sites_saas: {
         Row: ClientSite;
         Insert: Omit<ClientSite, 'id' | 'created_at'>;
         Update: Partial<Omit<ClientSite, 'id' | 'created_at'>>;
