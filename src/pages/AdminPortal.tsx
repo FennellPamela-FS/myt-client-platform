@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ClientSite, SiteContent, resolveSiteContent } from '../types/database';
+import type { ClientSite, SiteContent } from '../types/database';
+import { resolveSiteContent } from '../types/database';
 import { Save, LogOut, Eye, Sparkles } from 'lucide-react';
 
 const FIELD_GROUPS = [
@@ -85,8 +86,9 @@ export default function AdminPortal() {
       .single()
       .then(({ data }) => {
         if (data) {
-          setSite(data as ClientSite);
-          setEdits(data.custom_edits ?? {});
+          const site = data as unknown as ClientSite;
+          setSite(site);
+          setEdits(site.custom_edits ?? {});
         }
         setLoading(false);
       });
@@ -100,8 +102,8 @@ export default function AdminPortal() {
   const handleSave = async () => {
     if (!site) return;
     setSaving(true);
-    await supabase
-      .from('client_sites')
+    await (supabase
+      .from('client_sites') as any)
       .update({ custom_edits: edits })
       .eq('id', site.id);
     setSaving(false);

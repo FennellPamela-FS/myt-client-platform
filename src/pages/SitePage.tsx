@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ClientSite, resolveSiteContent } from '../types/database';
+import type { ClientSite } from '../types/database';
+import { resolveSiteContent } from '../types/database';
 
 export default function SitePage() {
   const { slug } = useParams<{ slug: string }>();
