@@ -99,16 +99,15 @@ type Props = {
   content: SiteContent;
   branding: SiteBranding;
   businessName: string;
-  slug: string;
+  slug?: string;
   previewMode?: boolean;
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function SiteRenderer({ content, branding, businessName, slug, previewMode = false }: Props) {
+export default function SiteRenderer({ content, branding, businessName }: Props) {
   const tc = THEME_CONFIGS[branding.theme];
   const isLuxury = branding.theme === 'luxury';
-  const isCreativeDark = branding.theme === 'creative';
 
   const heroImg = INDUSTRY_IMAGES[content.industry_category] ?? INDUSTRY_IMAGES.other;
 
