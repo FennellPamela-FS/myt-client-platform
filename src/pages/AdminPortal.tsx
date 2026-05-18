@@ -19,7 +19,7 @@ const NAV_SECTIONS = [
   { id: 'services', label: 'Services', icon: Briefcase, fields: ['service_1_name', 'service_1_description', 'service_1_benefit', 'service_1_cta', 'service_2_name', 'service_2_description', 'service_2_benefit', 'service_2_cta', 'service_3_name', 'service_3_description', 'service_3_benefit', 'service_3_cta', 'service_4_name', 'service_4_description', 'service_4_benefit', 'service_4_cta'] },
   { id: 'benefits', label: 'Why Us', icon: Star, fields: ['benefit_1_title', 'benefit_1_description', 'benefit_2_title', 'benefit_2_description', 'benefit_3_title', 'benefit_3_description', 'benefit_4_title', 'benefit_4_description'] },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, fields: ['testimonial_1_quote', 'testimonial_1_name', 'testimonial_1_role', 'testimonial_2_quote', 'testimonial_2_name', 'testimonial_2_role'] },
-  { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line'] },
+  { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url'] },
   { id: 'contact_info', label: 'Contact Info', icon: Phone, fields: ['business_phone', 'business_address', 'business_hours', 'contact_form_title'] },
   { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email'] },
 ];
@@ -344,6 +344,30 @@ export default function AdminPortal() {
                   <p className="text-sm text-muted-foreground">Edit the content for this section</p>
                 </div>
 
+                {/* Booking CTA toggle */}
+                {activeSection === 'cta' && (
+                  <div className="card space-y-3">
+                    <h3 className="font-medium text-sm">CTA Button Behavior</h3>
+                    <button
+                      onClick={() => { setDisplayOptions(prev => ({ ...prev, use_booking_cta: !prev.use_booking_cta })); setSaved(false); }}
+                      className="w-full flex items-center justify-between py-2 text-sm"
+                    >
+                      <div>
+                        <p className="font-medium text-left">Use booking / calendar link</p>
+                        <p className="text-xs text-muted-foreground text-left">Button opens a scheduling modal instead of scrolling to the contact form</p>
+                      </div>
+                      {displayOptions.use_booking_cta
+                        ? <ToggleRight size={22} style={{ color: primaryColor }} />
+                        : <ToggleLeft size={22} className="text-gray-300" />}
+                    </button>
+                    {displayOptions.use_booking_cta && (
+                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+                        Paste your booking URL in the <strong>Booking / Calendar URL</strong> field below. Works with Calendly, GHL Calendar, Cal.com, Tidycal, and others.
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* Contact info visibility toggles */}
                 {activeSection === 'contact_info' && (
                   <div className="card space-y-3">
@@ -373,10 +397,14 @@ export default function AdminPortal() {
                 )}
 
                 {currentSection.fields.map(key => {
+                  // Hide booking_url field when booking CTA is disabled
+                  if (key === 'booking_url' && !displayOptions.use_booking_cta) return null;
                   const currentVal = (edits[key as keyof SiteContent] ?? content?.[key as keyof SiteContent] ?? '') as string;
                   return (
                     <div key={key}>
-                      <label className="block text-sm font-medium mb-1.5">{fieldLabel(key)}</label>
+                      <label className="block text-sm font-medium mb-1.5">
+                        {key === 'booking_url' ? 'Booking / Calendar URL' : fieldLabel(key)}
+                      </label>
                       {isTextarea(key) ? (
                         <textarea
                           value={currentVal}

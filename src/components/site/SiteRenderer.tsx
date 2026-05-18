@@ -114,6 +114,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
   const opts = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };
   const [formSent, setFormSent] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', service: '', message: '' });
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   const heroImg = INDUSTRY_IMAGES[content.industry_category] ?? INDUSTRY_IMAGES.other;
 
@@ -374,13 +375,23 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
             {content.cta_section_headline}
           </h2>
           <p className="text-lg mb-10 opacity-90">{content.cta_section_body}</p>
-          <a
-            href="#contact"
-            className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
-            style={{ color: branding.primaryColor }}
-          >
-            {content.cta_button_text}
-          </a>
+          {opts.use_booking_cta && content.booking_url ? (
+            <button
+              onClick={() => setBookingOpen(true)}
+              className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+              style={{ color: branding.primaryColor }}
+            >
+              {content.cta_button_text}
+            </button>
+          ) : (
+            <a
+              href="#contact"
+              className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+              style={{ color: branding.primaryColor }}
+            >
+              {content.cta_button_text}
+            </a>
+          )}
           <p className="mt-6 text-sm opacity-70">{content.cta_urgency_line}</p>
         </div>
       </section>
@@ -622,6 +633,52 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
         >
           <Settings size={18} />
         </a>
+      )}
+
+      {/* ── Booking modal ───────────────────────────────────────────────── */}
+      {bookingOpen && content.booking_url && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.75)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setBookingOpen(false); }}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden"
+            style={{ maxHeight: '90vh' }}>
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-3 border-b">
+              <span className="font-semibold text-sm" style={{ color: branding.primaryColor }}>
+                {content.cta_button_text}
+              </span>
+              <button
+                onClick={() => setBookingOpen(false)}
+                className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            {/* Iframe embed */}
+            <iframe
+              src={content.booking_url}
+              title="Booking"
+              className="flex-1 w-full border-0"
+              style={{ minHeight: '560px' }}
+              allow="camera; microphone; fullscreen"
+            />
+            {/* Fallback link in case iframe is blocked */}
+            <div className="px-5 py-3 border-t text-center">
+              <a
+                href={content.booking_url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs hover:underline"
+                style={{ color: branding.primaryColor }}
+              >
+                Having trouble? Open in a new tab →
+              </a>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

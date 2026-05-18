@@ -36,6 +36,7 @@ export type SiteContent = {
   business_address: string;
   business_hours: string;
   contact_form_title: string;
+  booking_url: string;
   business_email: string;
   industry_category: string;
   theme_selection: string;
@@ -50,6 +51,7 @@ export type DisplayOptions = {
   show_nav_name: boolean;
   show_footer_logo: boolean;
   show_footer_name: boolean;
+  use_booking_cta: boolean;
 };
 
 export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
@@ -61,6 +63,7 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   show_nav_name: true,
   show_footer_logo: true,
   show_footer_name: true,
+  use_booking_cta: false,
 };
 
 export type ClientSite = {
