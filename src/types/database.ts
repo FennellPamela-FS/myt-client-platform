@@ -32,9 +32,27 @@ export type SiteContent = {
   cta_urgency_line: string;
   meta_description: string;
   brand_tagline: string;
+  business_phone: string;
+  business_address: string;
+  business_hours: string;
+  contact_form_title: string;
   business_email: string;
   industry_category: string;
   theme_selection: string;
+};
+
+export type DisplayOptions = {
+  show_phone: boolean;
+  show_address: boolean;
+  show_hours: boolean;
+  show_contact_form: boolean;
+};
+
+export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
+  show_phone: true,
+  show_address: true,
+  show_hours: true,
+  show_contact_form: true,
 };
 
 export type ClientSite = {
@@ -52,6 +70,7 @@ export type ClientSite = {
   accent_color: string;
   generated_copy: SiteContent | null;
   custom_edits: Partial<SiteContent> | null;
+  display_options: DisplayOptions | null;
   status: 'active' | 'inactive' | 'pending';
   created_at: string;
 };

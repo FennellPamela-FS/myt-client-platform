@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import type { ClientSite, SiteContent, ThemeSelection } from '../types/database';
+import type { ClientSite, SiteContent, ThemeSelection, DisplayOptions } from '../types/database';
+import { DEFAULT_DISPLAY_OPTIONS } from '../types/database';
 import { resolveSiteContent } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
 import {
   Save, LogOut, Eye, EyeOff, Upload, Palette,
-  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X
+  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, ToggleLeft, ToggleRight
 } from 'lucide-react';
 
 // ─── Section groups ───────────────────────────────────────────────────────────
@@ -19,6 +20,7 @@ const NAV_SECTIONS = [
   { id: 'benefits', label: 'Why Us', icon: Star, fields: ['benefit_1_title', 'benefit_1_description', 'benefit_2_title', 'benefit_2_description', 'benefit_3_title', 'benefit_3_description', 'benefit_4_title', 'benefit_4_description'] },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, fields: ['testimonial_1_quote', 'testimonial_1_name', 'testimonial_1_role', 'testimonial_2_quote', 'testimonial_2_name', 'testimonial_2_role'] },
   { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line'] },
+  { id: 'contact_info', label: 'Contact Info', icon: Phone, fields: ['business_phone', 'business_address', 'business_hours', 'contact_form_title'] },
   { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email'] },
 ];
 
@@ -53,6 +55,7 @@ export default function AdminPortal() {
   const [theme, setTheme] = useState<ThemeSelection>('professional');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY_OPTIONS);
 
   const [activeSection, setActiveSection] = useState('branding');
   const [showPreview, setShowPreview] = useState(true);
@@ -86,6 +89,7 @@ export default function AdminPortal() {
           setAccentColor(s.accent_color || '#45899E');
           setTheme(s.theme || 'professional');
           setLogoUrl(s.logo_url ?? null);
+          setDisplayOptions({ ...DEFAULT_DISPLAY_OPTIONS, ...(s.display_options ?? {}) });
         }
         setLoading(false);
       });
@@ -124,6 +128,7 @@ export default function AdminPortal() {
         accent_color: accentColor,
         theme,
         logo_url: logoUrl,
+        display_options: displayOptions,
       })
       .eq('id', site.id);
     setSaving(false);
@@ -338,6 +343,31 @@ export default function AdminPortal() {
                   <h2 className="text-lg font-semibold mb-1">{currentSection.label}</h2>
                   <p className="text-sm text-muted-foreground">Edit the content for this section</p>
                 </div>
+
+                {/* Contact info visibility toggles */}
+                {activeSection === 'contact_info' && (
+                  <div className="card space-y-3">
+                    <h3 className="font-medium text-sm">Show / Hide</h3>
+                    {([
+                      { key: 'show_phone', label: 'Phone number' },
+                      { key: 'show_address', label: 'Business address' },
+                      { key: 'show_hours', label: 'Business hours' },
+                      { key: 'show_contact_form', label: 'Contact form section' },
+                    ] as { key: keyof DisplayOptions; label: string }[]).map(({ key, label }) => (
+                      <button
+                        key={key}
+                        onClick={() => { setDisplayOptions(prev => ({ ...prev, [key]: !prev[key] })); setSaved(false); }}
+                        className="w-full flex items-center justify-between py-2 text-sm"
+                      >
+                        <span>{label}</span>
+                        {displayOptions[key]
+                          ? <ToggleRight size={22} style={{ color: primaryColor }} />
+                          : <ToggleLeft size={22} className="text-gray-300" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {currentSection.fields.map(key => {
                   const currentVal = (edits[key as keyof SiteContent] ?? content?.[key as keyof SiteContent] ?? '') as string;
                   return (
@@ -384,8 +414,7 @@ export default function AdminPortal() {
                     content={liveContent}
                     branding={liveBranding}
                     businessName={site.business_name}
-                    slug={slug!}
-                    previewMode
+                    displayOptions={displayOptions}
                   />
                 </div>
               </div>

@@ -60,6 +60,7 @@ export default function SitePage() {
         branding={branding}
         businessName={site.business_name}
         slug={slug!}
+        displayOptions={site.display_options}
       />
       <footer className="py-6 px-6 border-t text-center text-xs text-muted-foreground"
         style={{ borderColor: `${branding.primaryColor}22` }}>

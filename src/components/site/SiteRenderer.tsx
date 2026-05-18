@@ -1,4 +1,7 @@
-import type { SiteContent, SiteBranding, ThemeSelection } from '../../types/database';
+import { useState } from 'react';
+import { Settings, Phone, MapPin, Clock } from 'lucide-react';
+import type { SiteContent, SiteBranding, ThemeSelection, DisplayOptions } from '../../types/database';
+import { DEFAULT_DISPLAY_OPTIONS } from '../../types/database';
 
 // ─── Theme config ────────────────────────────────────────────────────────────
 
@@ -100,14 +103,17 @@ type Props = {
   branding: SiteBranding;
   businessName: string;
   slug?: string;
-  previewMode?: boolean;
+  displayOptions?: DisplayOptions | null;
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function SiteRenderer({ content, branding, businessName }: Props) {
+export default function SiteRenderer({ content, branding, businessName, slug, displayOptions }: Props) {
   const tc = THEME_CONFIGS[branding.theme];
   const isLuxury = branding.theme === 'luxury';
+  const opts = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };
+  const [formSent, setFormSent] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', service: '', message: '' });
 
   const heroImg = INDUSTRY_IMAGES[content.industry_category] ?? INDUSTRY_IMAGES.other;
 
@@ -142,10 +148,10 @@ export default function SiteRenderer({ content, branding, businessName }: Props)
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            {['About', 'Services', 'Contact'].map(item => (
+            {['Home', 'About', 'Services', 'Contact'].map(item => (
               <a
                 key={item}
-                href={`#${item.toLowerCase()}`}
+                href={item === 'Home' ? '#' : `#${item.toLowerCase()}`}
                 className={`transition-colors ${isLuxury ? 'text-neutral-400 hover:text-neutral-100 tracking-wider uppercase text-xs' : 'text-gray-600 hover:text-gray-900'}`}
               >
                 {item}
@@ -153,7 +159,7 @@ export default function SiteRenderer({ content, branding, businessName }: Props)
             ))}
           </nav>
           <a
-            href={`mailto:${content.business_email}`}
+            href="#contact"
             className={`hidden md:inline-flex px-4 py-2 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
             style={{ backgroundColor: branding.primaryColor }}
           >
@@ -183,7 +189,7 @@ export default function SiteRenderer({ content, branding, businessName }: Props)
               </p>
               <div className="flex flex-wrap gap-4">
                 <a
-                  href={`mailto:${content.business_email}`}
+                  href="#contact"
                   className={`px-8 py-3 text-white text-sm transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
                   style={{ backgroundColor: branding.primaryColor }}
                 >
@@ -356,9 +362,8 @@ export default function SiteRenderer({ content, branding, businessName }: Props)
         </div>
       </section>
 
-      {/* ── CTA ────────────────────────────────────────────────────────── */}
+      {/* ── CTA banner ─────────────────────────────────────────────────── */}
       <section
-        id="contact"
         className="py-24 px-6 text-white text-center"
         style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})` }}
       >
@@ -368,7 +373,7 @@ export default function SiteRenderer({ content, branding, businessName }: Props)
           </h2>
           <p className="text-lg mb-10 opacity-90">{content.cta_section_body}</p>
           <a
-            href={`mailto:${content.business_email}`}
+            href="#contact"
             className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
             style={{ color: branding.primaryColor }}
           >
@@ -377,6 +382,239 @@ export default function SiteRenderer({ content, branding, businessName }: Props)
           <p className="mt-6 text-sm opacity-70">{content.cta_urgency_line}</p>
         </div>
       </section>
+
+      {/* ── Contact form ───────────────────────────────────────────────── */}
+      {opts.show_contact_form && (
+        <section id="contact" className={`py-24 px-6 ${isLuxury ? 'bg-neutral-900' : 'bg-gray-50'}`}>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                {content.contact_form_title || 'Get Your Free Estimate'}
+              </h2>
+              <p className={`${isLuxury ? 'text-neutral-400' : 'text-gray-500'}`}>
+                Ready to get started? Fill out the form and we'll get back to you within 24 hours.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12">
+              {/* Form */}
+              <div className={`p-8 ${tc.cardClass}`}>
+                {formSent ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"
+                      style={{ backgroundColor: `${branding.primaryColor}22`, color: branding.primaryColor }}>
+                      ✓
+                    </div>
+                    <h3 className={`text-xl font-semibold mb-2 ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                      Message Sent!
+                    </h3>
+                    <p className={isLuxury ? 'text-neutral-400' : 'text-gray-500'}>
+                      We'll be in touch within 24 hours.
+                    </p>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      window.location.href = `mailto:${content.business_email}?subject=New Inquiry from ${formData.name}&body=Name: ${formData.name}%0AEmail: ${formData.email}%0APhone: ${formData.phone}%0AService: ${formData.service}%0AMessage: ${formData.message}`;
+                      setFormSent(true);
+                    }}
+                    className="space-y-4"
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>First Name *</label>
+                        <input required value={formData.name.split(' ')[0]} onChange={e => setFormData(p => ({ ...p, name: e.target.value + ' ' + (p.name.split(' ')[1] || '') }))}
+                          className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                          placeholder="John" />
+                      </div>
+                      <div>
+                        <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Last Name *</label>
+                        <input required value={formData.name.split(' ')[1] || ''} onChange={e => setFormData(p => ({ ...p, name: (p.name.split(' ')[0] || '') + ' ' + e.target.value }))}
+                          className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                          placeholder="Doe" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Email *</label>
+                      <input required type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                        placeholder="john@example.com" />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Phone *</label>
+                      <input required type="tel" value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                        placeholder="(555) 123-4567" />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Service Interested In</label>
+                      <select value={formData.service} onChange={e => setFormData(p => ({ ...p, service: e.target.value }))}
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}>
+                        <option value="">Select a service</option>
+                        {[1, 2, 3, 4].map(n => {
+                          const name = content[`service_${n}_name` as keyof SiteContent];
+                          return name ? <option key={n} value={name}>{name}</option> : null;
+                        })}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Message</label>
+                      <textarea rows={4} value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm resize-none focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                        placeholder="Tell us about your project…" />
+                    </div>
+                    <button type="submit"
+                      className={`w-full py-3 text-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+                      style={{ backgroundColor: branding.primaryColor }}>
+                      Get Free Estimate
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Get in touch */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className={`text-xl font-semibold mb-4 ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                    Get In Touch
+                  </h3>
+                  <div className="space-y-3">
+                    {opts.show_phone && content.business_phone && (
+                      <div className="flex items-center gap-3">
+                        <Phone size={16} style={{ color: branding.primaryColor }} />
+                        <span className={`text-sm ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_phone}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: branding.primaryColor }}>
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                      </svg>
+                      <a href={`mailto:${content.business_email}`} className={`text-sm hover:underline ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_email}</a>
+                    </div>
+                    {opts.show_address && content.business_address && (
+                      <div className="flex items-start gap-3">
+                        <MapPin size={16} style={{ color: branding.primaryColor }} className="mt-0.5 flex-shrink-0" />
+                        <span className={`text-sm ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_address}</span>
+                      </div>
+                    )}
+                    {opts.show_hours && content.business_hours && (
+                      <div className="flex items-center gap-3">
+                        <Clock size={16} style={{ color: branding.primaryColor }} />
+                        <span className={`text-sm ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_hours}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Why choose us box */}
+                <div className={`p-6 ${tc.radiusClass}`}
+                  style={{ background: `linear-gradient(135deg, ${branding.primaryColor}dd, ${branding.accentColor}dd)` }}>
+                  <h4 className="font-semibold text-white mb-4">Why Choose Us?</h4>
+                  <ul className="space-y-2">
+                    {[1, 2, 3, 4].map(n => {
+                      const title = content[`benefit_${n}_title` as keyof SiteContent];
+                      return title ? (
+                        <li key={n} className="flex items-center gap-2 text-sm text-white/90">
+                          <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-xs">✓</span>
+                          {title}
+                        </li>
+                      ) : null;
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
+      <footer className={`${isLuxury ? 'bg-neutral-950 border-t border-neutral-800' : 'bg-gray-900'} text-white`}>
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="grid md:grid-cols-3 gap-12">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                {branding.logoUrl ? (
+                  <img src={branding.logoUrl} alt={businessName} className="h-10 w-auto object-contain" />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
+                    style={{ backgroundColor: branding.primaryColor }}>
+                    {businessName.charAt(0)}
+                  </div>
+                )}
+                <span className="font-semibold text-lg">{businessName}</span>
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed">{content.about_tagline}</p>
+            </div>
+
+            {/* Quick links */}
+            <div>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Quick Links</h4>
+              <ul className="space-y-2">
+                {['Home', 'About', 'Services', 'Contact'].map(link => (
+                  <li key={link}>
+                    <a href={link === 'Home' ? '#' : link === 'Contact' ? '#contact' : `#${link.toLowerCase()}`}
+                      className="text-sm text-gray-400 hover:text-white transition-colors">
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact info */}
+            <div>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Contact Us</h4>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-2 text-sm text-gray-400">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <a href={`mailto:${content.business_email}`} className="hover:text-white transition-colors">{content.business_email}</a>
+                </li>
+                {opts.show_phone && content.business_phone && (
+                  <li className="flex items-center gap-2 text-sm text-gray-400">
+                    <Phone size={14} /><span>{content.business_phone}</span>
+                  </li>
+                )}
+                {opts.show_address && content.business_address && (
+                  <li className="flex items-start gap-2 text-sm text-gray-400">
+                    <MapPin size={14} className="mt-0.5 flex-shrink-0" /><span>{content.business_address}</span>
+                  </li>
+                )}
+                {opts.show_hours && content.business_hours && (
+                  <li className="flex items-center gap-2 text-sm text-gray-400">
+                    <Clock size={14} /><span>{content.business_hours}</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-gray-800">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-xs text-gray-500">
+            <span>© {new Date().getFullYear()} {businessName}. All Rights Reserved.</span>
+            <span style={{ color: branding.primaryColor }} className="text-xs">Powered by mytCreative</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── Settings FAB ────────────────────────────────────────────────── */}
+      {slug && (
+        <a
+          href={`/site/${slug}/admin`}
+          className="fixed bottom-6 right-6 w-11 h-11 rounded-full shadow-lg flex items-center justify-center text-white transition-opacity hover:opacity-90 z-50"
+          style={{ backgroundColor: branding.primaryColor }}
+          title="Manage site"
+          aria-label="Site settings"
+        >
+          <Settings size={18} />
+        </a>
+      )}
 
     </div>
   );
