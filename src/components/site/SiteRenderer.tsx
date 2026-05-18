@@ -133,19 +133,21 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
       <header className={`sticky top-0 z-50 ${isLuxury ? 'bg-neutral-950 border-b border-neutral-800' : 'bg-white border-b border-gray-100 shadow-sm'}`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {branding.logoUrl ? (
-              <img src={branding.logoUrl} alt={businessName} className="h-10 w-auto object-contain" />
-            ) : (
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg"
-                style={{ backgroundColor: branding.primaryColor }}
-              >
-                {businessName.charAt(0)}
-              </div>
+            {opts.show_nav_logo && (
+              branding.logoUrl ? (
+                <img src={branding.logoUrl} alt={businessName} className="h-10 w-auto object-contain" />
+              ) : (
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg"
+                  style={{ backgroundColor: branding.primaryColor }}>
+                  {businessName.charAt(0)}
+                </div>
+              )
             )}
-            <span className={`font-semibold text-lg ${isLuxury ? 'text-neutral-100 tracking-widest uppercase text-sm' : ''}`}>
-              {businessName}
-            </span>
+            {opts.show_nav_name && (
+              <span className={`font-semibold text-lg ${isLuxury ? 'text-neutral-100 tracking-widest uppercase text-sm' : ''}`}>
+                {businessName}
+              </span>
+            )}
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             {['Home', 'About', 'Services', 'Contact'].map(item => (
@@ -262,7 +264,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
             {content.about_mission}
           </p>
           <a
-            href={`mailto:${content.business_email}`}
+            href="#benefits"
             className={`inline-flex px-8 py-3 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
             style={{ backgroundColor: branding.primaryColor }}
           >
@@ -311,7 +313,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
       </section>
 
       {/* ── Benefits ───────────────────────────────────────────────────── */}
-      <section className={`py-24 px-6 ${tc.altSectionBg}`}>
+      <section id="benefits" className={`py-24 px-6 ${tc.altSectionBg}`}>
         <div className="max-w-7xl mx-auto">
           <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
             Why Choose Us
@@ -535,17 +537,23 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
           <div className="grid md:grid-cols-3 gap-12">
             {/* Brand */}
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                {branding.logoUrl ? (
-                  <img src={branding.logoUrl} alt={businessName} className="h-10 w-auto object-contain" />
-                ) : (
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
-                    style={{ backgroundColor: branding.primaryColor }}>
-                    {businessName.charAt(0)}
-                  </div>
-                )}
-                <span className="font-semibold text-lg">{businessName}</span>
-              </div>
+              {(opts.show_footer_logo || opts.show_footer_name) && (
+                <div className="flex items-center gap-3 mb-4">
+                  {opts.show_footer_logo && (
+                    branding.logoUrl ? (
+                      <img src={branding.logoUrl} alt={businessName} className="h-10 w-auto object-contain" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
+                        style={{ backgroundColor: branding.primaryColor }}>
+                        {businessName.charAt(0)}
+                      </div>
+                    )
+                  )}
+                  {opts.show_footer_name && (
+                    <span className="font-semibold text-lg">{businessName}</span>
+                  )}
+                </div>
+              )}
               <p className="text-gray-400 text-sm leading-relaxed">{content.about_tagline}</p>
             </div>
 

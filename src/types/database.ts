@@ -46,6 +46,10 @@ export type DisplayOptions = {
   show_address: boolean;
   show_hours: boolean;
   show_contact_form: boolean;
+  show_nav_logo: boolean;
+  show_nav_name: boolean;
+  show_footer_logo: boolean;
+  show_footer_name: boolean;
 };
 
 export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
@@ -53,6 +57,10 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   show_address: true,
   show_hours: true,
   show_contact_form: true,
+  show_nav_logo: true,
+  show_nav_name: true,
+  show_footer_logo: true,
+  show_footer_name: true,
 };
 
 export type ClientSite = {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { ClientSite } from '../types/database';
 import { resolveSiteContent, resolveBranding } from '../types/database';
@@ -54,7 +54,6 @@ export default function SitePage() {
 
   return (
     <div className="min-h-screen">
-      {/* SEO meta description injected dynamically */}
       <SiteRenderer
         content={content}
         branding={branding}
@@ -62,13 +61,6 @@ export default function SitePage() {
         slug={slug!}
         displayOptions={site.display_options}
       />
-      <footer className="py-6 px-6 border-t text-center text-xs text-muted-foreground"
-        style={{ borderColor: `${branding.primaryColor}22` }}>
-        <p>© {new Date().getFullYear()} {site.business_name} · <a href={`mailto:${content.business_email}`} className="hover:underline">{content.business_email}</a></p>
-        <p className="mt-1">
-          <Link to={`/site/${slug}/admin`} className="hover:text-foreground transition-colors">Manage site</Link>
-        </p>
-      </footer>
     </div>
   );
 }

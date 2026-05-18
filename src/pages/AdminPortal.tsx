@@ -349,6 +349,10 @@ export default function AdminPortal() {
                   <div className="card space-y-3">
                     <h3 className="font-medium text-sm">Show / Hide</h3>
                     {([
+                      { key: 'show_nav_logo', label: 'Logo in navigation' },
+                      { key: 'show_nav_name', label: 'Business name in navigation' },
+                      { key: 'show_footer_logo', label: 'Logo in footer' },
+                      { key: 'show_footer_name', label: 'Business name in footer' },
                       { key: 'show_phone', label: 'Phone number' },
                       { key: 'show_address', label: 'Business address' },
                       { key: 'show_hours', label: 'Business hours' },
