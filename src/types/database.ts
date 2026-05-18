@@ -82,6 +82,8 @@ export type ClientSite = {
   generated_copy: SiteContent | null;
   custom_edits: Partial<SiteContent> | null;
   display_options: DisplayOptions | null;
+  hero_image_url: string | null;
+  gallery_images: string[] | null;
   status: 'active' | 'inactive' | 'pending';
   created_at: string;
 };
@@ -92,6 +94,8 @@ export type SiteBranding = {
   secondaryColor: string;
   accentColor: string;
   theme: ThemeSelection;
+  heroImageUrl: string | null;
+  galleryImages: string[];
 };
 
 export function resolveSiteContent(site: ClientSite): SiteContent | null {
@@ -106,6 +110,8 @@ export function resolveBranding(site: ClientSite): SiteBranding {
     secondaryColor: site.secondary_color || '#464E54',
     accentColor: site.accent_color || '#45899E',
     theme: site.theme || 'professional',
+    heroImageUrl: site.hero_image_url ?? null,
+    galleryImages: site.gallery_images ?? [],
   };
 }
 

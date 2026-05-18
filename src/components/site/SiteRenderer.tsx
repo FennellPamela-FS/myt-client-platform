@@ -116,7 +116,8 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', service: '', message: '' });
   const [bookingOpen, setBookingOpen] = useState(false);
 
-  const heroImg = INDUSTRY_IMAGES[content.industry_category] ?? INDUSTRY_IMAGES.other;
+  const heroImg = branding.heroImageUrl || INDUSTRY_IMAGES[content.industry_category] || INDUSTRY_IMAGES.other;
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   const cssVars = {
     '--brand-primary': branding.primaryColor,
@@ -312,6 +313,38 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
           </div>
         </div>
       </section>
+
+      {/* ── Gallery ────────────────────────────────────────────────────── */}
+      {branding.galleryImages.length > 0 && (
+        <section className={`py-24 px-6 ${tc.altSectionBg}`}>
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                Our Work
+              </h2>
+              <div className="w-16 h-1 mx-auto" style={{ backgroundColor: branding.primaryColor }} />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {branding.galleryImages.map((src, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLightboxSrc(src)}
+                  className={`group relative overflow-hidden ${tc.radiusClass} aspect-square focus:outline-none`}
+                >
+                  <img
+                    src={src}
+                    alt={`Gallery photo ${i + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                    <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs font-medium">View</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Benefits ───────────────────────────────────────────────────── */}
       <section id="benefits" className={`py-24 px-6 ${tc.altSectionBg}`}>
@@ -633,6 +666,28 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
         >
           <Settings size={18} />
         </a>
+      )}
+
+      {/* ── Lightbox ────────────────────────────────────────────────────── */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            onClick={() => setLightboxSrc(null)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors text-lg"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+          <img
+            src={lightboxSrc}
+            alt="Gallery"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
 
       {/* ── Booking modal ───────────────────────────────────────────────── */}

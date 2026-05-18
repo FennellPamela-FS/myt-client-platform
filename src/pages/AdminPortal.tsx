@@ -7,7 +7,7 @@ import { resolveSiteContent } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
 import {
   Save, LogOut, Eye, EyeOff, Upload, Palette,
-  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, ToggleLeft, ToggleRight
+  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, ToggleLeft, ToggleRight, Image, Trash2
 } from 'lucide-react';
 
 // ─── Section groups ───────────────────────────────────────────────────────────
@@ -20,6 +20,7 @@ const NAV_SECTIONS = [
   { id: 'benefits', label: 'Why Us', icon: Star, fields: ['benefit_1_title', 'benefit_1_description', 'benefit_2_title', 'benefit_2_description', 'benefit_3_title', 'benefit_3_description', 'benefit_4_title', 'benefit_4_description'] },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, fields: ['testimonial_1_quote', 'testimonial_1_name', 'testimonial_1_role', 'testimonial_2_quote', 'testimonial_2_name', 'testimonial_2_role'] },
   { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url'] },
+  { id: 'gallery', label: 'Photo Gallery', icon: Image, fields: [] },
   { id: 'contact_info', label: 'Contact Info', icon: Phone, fields: ['business_phone', 'business_address', 'business_hours', 'contact_form_title'] },
   { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email'] },
 ];
@@ -55,6 +56,10 @@ export default function AdminPortal() {
   const [theme, setTheme] = useState<ThemeSelection>('professional');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+  const [heroUploading, setHeroUploading] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
   const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY_OPTIONS);
 
   const [activeSection, setActiveSection] = useState('branding');
@@ -89,6 +94,8 @@ export default function AdminPortal() {
           setAccentColor(s.accent_color || '#45899E');
           setTheme(s.theme || 'professional');
           setLogoUrl(s.logo_url ?? null);
+          setHeroImageUrl(s.hero_image_url ?? null);
+          setGalleryImages(s.gallery_images ?? []);
           setDisplayOptions({ ...DEFAULT_DISPLAY_OPTIONS, ...(s.display_options ?? {}) });
         }
         setLoading(false);
@@ -117,6 +124,45 @@ export default function AdminPortal() {
     setLogoUploading(false);
   };
 
+  const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !site) return;
+    setHeroUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `hero/${site.id}.${ext}`;
+    const { error } = await supabase.storage.from('client-assets').upload(path, file, { upsert: true });
+    if (!error) {
+      const { data } = supabase.storage.from('client-assets').getPublicUrl(path);
+      setHeroImageUrl(data.publicUrl);
+      setSaved(false);
+    }
+    setHeroUploading(false);
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>, slot: number) => {
+    const file = e.target.files?.[0];
+    if (!file || !site) return;
+    setGalleryUploading(slot);
+    const ext = file.name.split('.').pop();
+    const path = `gallery/${site.id}_${slot}.${ext}`;
+    const { error } = await supabase.storage.from('client-assets').upload(path, file, { upsert: true });
+    if (!error) {
+      const { data } = supabase.storage.from('client-assets').getPublicUrl(path);
+      setGalleryImages(prev => {
+        const updated = [...prev];
+        updated[slot] = data.publicUrl;
+        return updated;
+      });
+      setSaved(false);
+    }
+    setGalleryUploading(null);
+  };
+
+  const handleGalleryRemove = (slot: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== slot));
+    setSaved(false);
+  };
+
   const handleSave = async () => {
     if (!site) return;
     setSaving(true);
@@ -128,6 +174,8 @@ export default function AdminPortal() {
         accent_color: accentColor,
         theme,
         logo_url: logoUrl,
+        hero_image_url: heroImageUrl,
+        gallery_images: galleryImages,
         display_options: displayOptions,
       })
       .eq('id', site.id);
@@ -154,7 +202,7 @@ export default function AdminPortal() {
 
   const content = resolveSiteContent(site);
   const liveContent = content ? { ...content, ...edits } as SiteContent : null;
-  const liveBranding = { logoUrl, primaryColor, secondaryColor, accentColor, theme };
+  const liveBranding = { logoUrl, primaryColor, secondaryColor, accentColor, theme, heroImageUrl, galleryImages: galleryImages.filter(Boolean) };
   const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
 
   return (
@@ -343,6 +391,85 @@ export default function AdminPortal() {
                   <h2 className="text-lg font-semibold mb-1">{currentSection.label}</h2>
                   <p className="text-sm text-muted-foreground">Edit the content for this section</p>
                 </div>
+
+                {/* Hero image upload */}
+                {activeSection === 'hero' && (
+                  <div className="card">
+                    <h3 className="font-medium text-sm mb-3">Hero Image</h3>
+                    <div className="flex items-start gap-4">
+                      {heroImageUrl ? (
+                        <div className="relative flex-shrink-0">
+                          <img src={heroImageUrl} alt="Hero" className="h-20 w-32 object-cover rounded-lg border" />
+                          <button
+                            onClick={() => { setHeroImageUrl(null); setSaved(false); }}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="h-20 w-32 rounded-lg border bg-muted flex items-center justify-center flex-shrink-0">
+                          <Image size={20} className="text-muted-foreground" />
+                        </div>
+                      )}
+                      <div>
+                        <label className="btn btn-outline text-sm cursor-pointer py-1.5 px-3 inline-flex items-center gap-2">
+                          <Upload size={14} />
+                          {heroUploading ? 'Uploading…' : heroImageUrl ? 'Change Image' : 'Upload Image'}
+                          <input type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} disabled={heroUploading} />
+                        </label>
+                        <p className="text-xs text-muted-foreground mt-1.5">Replaces the auto-generated industry photo. Landscape works best.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Gallery section */}
+                {activeSection === 'gallery' && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">Upload up to 7 photos. They appear in a grid between your Services and Why Choose Us sections.</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {Array.from({ length: 7 }).map((_, slot) => {
+                        const src = galleryImages[slot];
+                        const isUploading = galleryUploading === slot;
+                        return (
+                          <div key={slot} className="relative aspect-square rounded-lg border-2 border-dashed border-gray-200 overflow-hidden">
+                            {src ? (
+                              <>
+                                <img src={src} alt={`Photo ${slot + 1}`} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-colors flex items-center justify-center gap-2 group">
+                                  <label className="opacity-0 group-hover:opacity-100 cursor-pointer bg-white/90 rounded-lg px-2 py-1 text-xs font-medium flex items-center gap-1">
+                                    <Upload size={12} /> Replace
+                                    <input type="file" accept="image/*" className="hidden" onChange={e => handleGalleryUpload(e, slot)} />
+                                  </label>
+                                  <button
+                                    onClick={() => handleGalleryRemove(slot)}
+                                    className="opacity-0 group-hover:opacity-100 bg-red-500 rounded-lg px-2 py-1 text-xs text-white flex items-center gap-1"
+                                  >
+                                    <Trash2 size={12} /> Remove
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <label className="w-full h-full flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
+                                {isUploading ? (
+                                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <>
+                                    <Image size={24} className="text-gray-300" />
+                                    <span className="text-xs text-muted-foreground">Photo {slot + 1}</span>
+                                  </>
+                                )}
+                                <input type="file" accept="image/*" className="hidden" onChange={e => handleGalleryUpload(e, slot)} disabled={isUploading} />
+                              </label>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Tip: square or portrait photos look best in the grid.</p>
+                  </div>
+                )}
 
                 {/* Booking CTA toggle */}
                 {activeSection === 'cta' && (
