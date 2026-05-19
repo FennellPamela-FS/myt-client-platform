@@ -215,7 +215,6 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
                 src={heroImg}
                 alt={businessName}
                 className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
               <div
                 className="absolute inset-0 opacity-30"
@@ -230,8 +229,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
           className="min-h-screen flex items-center justify-center text-center relative overflow-hidden"
           style={{ background: `linear-gradient(180deg, ${branding.secondaryColor}22 0%, transparent 100%)` }}
         >
-          <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-10"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
           <div className="relative z-10 max-w-4xl mx-auto px-6 py-24">
             <p className="text-xs tracking-[0.4em] uppercase mb-8 text-neutral-400">{content.brand_tagline}</p>
             <h1 className={`text-5xl md:text-7xl mb-8 leading-tight ${tc.headingClass}`}
