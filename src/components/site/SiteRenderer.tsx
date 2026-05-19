@@ -209,14 +209,16 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
               </div>
             </div>
             {/* Right: image */}
-            <div className={`relative overflow-hidden ${tc.radiusClass} shadow-2xl h-[480px]`}>
+            <div className={`relative overflow-hidden ${tc.radiusClass} shadow-2xl h-[480px]`}
+              style={{ background: `linear-gradient(135deg, ${branding.primaryColor}33, ${branding.accentColor}55)` }}>
               <img
                 src={heroImg}
                 alt={businessName}
                 className="w-full h-full object-cover"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
               <div
-                className="absolute inset-0 opacity-20"
+                className="absolute inset-0 opacity-30"
                 style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})` }}
               />
             </div>
@@ -228,7 +230,8 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
           className="min-h-screen flex items-center justify-center text-center relative overflow-hidden"
           style={{ background: `linear-gradient(180deg, ${branding.secondaryColor}22 0%, transparent 100%)` }}
         >
-          <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
+          <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-10"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           <div className="relative z-10 max-w-4xl mx-auto px-6 py-24">
             <p className="text-xs tracking-[0.4em] uppercase mb-8 text-neutral-400">{content.brand_tagline}</p>
             <h1 className={`text-5xl md:text-7xl mb-8 leading-tight ${tc.headingClass}`}
