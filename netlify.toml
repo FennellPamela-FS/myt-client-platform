@@ -2,6 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
+# Custom domain → slug rewrite (runs before the SPA catch-all redirect)
+# Requires VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Netlify env vars
+[[edge_functions]]
+  path = "/*"
+  function = "custom-domain"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

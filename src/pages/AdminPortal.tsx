@@ -7,7 +7,7 @@ import { resolveSiteContent } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
 import {
   Save, LogOut, Eye, EyeOff, Upload, Palette,
-  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, ToggleLeft, ToggleRight, Image, Trash2
+  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, ToggleLeft, ToggleRight, Image, Trash2, Globe
 } from 'lucide-react';
 
 // ─── Section groups ───────────────────────────────────────────────────────────
@@ -23,6 +23,7 @@ const NAV_SECTIONS = [
   { id: 'gallery', label: 'Photo Gallery', icon: Image, fields: [] },
   { id: 'contact_info', label: 'Contact Info', icon: Phone, fields: ['business_phone', 'business_address', 'business_hours', 'contact_form_title'] },
   { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email'] },
+  { id: 'domain', label: 'Custom Domain', icon: Globe, fields: [] },
 ];
 
 const THEMES: { value: ThemeSelection; label: string; desc: string }[] = [
@@ -468,6 +469,59 @@ export default function AdminPortal() {
                       })}
                     </div>
                     <p className="text-xs text-muted-foreground">Tip: square or portrait photos look best in the grid.</p>
+                  </div>
+                )}
+
+                {/* Custom domain */}
+                {activeSection === 'domain' && (
+                  <div className="space-y-5">
+                    <div className="card">
+                      <h3 className="font-medium text-sm mb-3">Your Domain</h3>
+                      {site.custom_domain ? (
+                        <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-green-50 border border-green-200">
+                          <Globe size={15} className="text-green-600 flex-shrink-0" />
+                          <span className="text-sm font-medium text-green-800 font-mono break-all">{site.custom_domain}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-gray-50 border border-gray-200">
+                          <Globe size={15} className="text-gray-400 flex-shrink-0" />
+                          <span className="text-sm text-muted-foreground">No custom domain connected yet</span>
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2">
+                        To connect or change your domain, contact your account manager.
+                      </p>
+                    </div>
+
+                    <div className="card space-y-4">
+                      <h3 className="font-medium text-sm">DNS Setup — What To Do</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Log in to your domain registrar (GoDaddy, Namecheap, Cloudflare, etc.) and add this record:
+                      </p>
+                      <div className="rounded-lg bg-gray-900 text-gray-100 text-xs font-mono p-4 space-y-2.5">
+                        <div className="flex gap-4">
+                          <span className="text-gray-500 w-14 flex-shrink-0">Type</span>
+                          <span>CNAME</span>
+                        </div>
+                        <div className="flex gap-4">
+                          <span className="text-gray-500 w-14 flex-shrink-0">Name</span>
+                          <span>www</span>
+                        </div>
+                        <div className="flex gap-4">
+                          <span className="text-gray-500 w-14 flex-shrink-0">Value</span>
+                          <span className="text-emerald-400">myt-client-platform.netlify.app</span>
+                        </div>
+                        <div className="flex gap-4">
+                          <span className="text-gray-500 w-14 flex-shrink-0">TTL</span>
+                          <span>3600 (or Auto)</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1.5 text-xs text-muted-foreground">
+                        <p>1. Add the CNAME record above at your DNS registrar.</p>
+                        <p>2. Let your account manager know — they'll activate the domain on this end.</p>
+                        <p>3. DNS changes can take up to 48 hours to propagate globally.</p>
+                      </div>
+                    </div>
                   </div>
                 )}
 
