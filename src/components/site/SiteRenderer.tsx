@@ -3,6 +3,29 @@ import { Settings, Phone, MapPin, Clock } from 'lucide-react';
 import type { SiteContent, SiteBranding, ThemeSelection, DisplayOptions } from '../../types/database';
 import { DEFAULT_DISPLAY_OPTIONS } from '../../types/database';
 
+// ─── YouTube helpers ─────────────────────────────────────────────────────────
+
+function getYouTubeId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function HeroMedia({ src, className }: { src: string; className: string }) {
+  const ytId = getYouTubeId(src);
+  if (ytId) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1`}
+        allow="autoplay; fullscreen"
+        title="Hero video"
+        className={className}
+        style={{ border: 'none', pointerEvents: 'none' }}
+      />
+    );
+  }
+  return <video src={src} autoPlay muted loop playsInline className={className} />;
+}
+
 // ─── Theme config ────────────────────────────────────────────────────────────
 
 type ThemeConfig = {
@@ -220,18 +243,10 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
             {/* Right: image or video */}
             <div className={`relative overflow-hidden ${tc.radiusClass} shadow-2xl h-[480px]`}
               style={{ background: `linear-gradient(135deg, ${branding.primaryColor}33, ${branding.accentColor}55)` }}>
-              {heroVideo ? (
-                <video
-                  src={heroVideo}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img src={heroImg} alt={businessName} className="w-full h-full object-cover" />
-              )}
+              {heroVideo
+                ? <HeroMedia src={heroVideo} className="w-full h-full object-cover" />
+                : <img src={heroImg} alt={businessName} className="w-full h-full object-cover" />
+              }
               <div
                 className="absolute inset-0 opacity-30"
                 style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})` }}
@@ -245,18 +260,10 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
           className="min-h-screen flex items-center justify-center text-center relative overflow-hidden"
           style={{ background: `linear-gradient(180deg, ${branding.secondaryColor}22 0%, transparent 100%)` }}
         >
-          {heroVideo ? (
-            <video
-              src={heroVideo}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-20"
-            />
-          ) : (
-            <img src={heroImg} alt="" className={`absolute inset-0 w-full h-full object-cover ${showBgMirror ? 'opacity-20' : 'opacity-10'}`} />
-          )}
+          {heroVideo
+            ? <HeroMedia src={heroVideo} className="absolute inset-0 w-full h-full object-cover opacity-20" />
+            : <img src={heroImg} alt="" className={`absolute inset-0 w-full h-full object-cover ${showBgMirror ? 'opacity-20' : 'opacity-10'}`} />
+          }
           <div className="relative z-10 max-w-4xl mx-auto px-6 py-24">
             <p className="text-xs tracking-[0.4em] uppercase mb-8 text-neutral-400">{content.brand_tagline}</p>
             <h1 className={`text-5xl md:text-7xl mb-8 leading-tight ${tc.headingClass}`}

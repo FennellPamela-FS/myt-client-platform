@@ -59,8 +59,10 @@ export default function AdminPortal() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [heroVideoUrl, setHeroVideoUrl] = useState<string | null>(null);
+  const [heroVideoUrlDraft, setHeroVideoUrlDraft] = useState('');
   const [heroUploading, setHeroUploading] = useState(false);
   const [heroVideoUploading, setHeroVideoUploading] = useState(false);
+  const [heroVideoError, setHeroVideoError] = useState('');
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
   const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY_OPTIONS);
@@ -99,6 +101,7 @@ export default function AdminPortal() {
           setLogoUrl(s.logo_url ?? null);
           setHeroImageUrl(s.hero_image_url ?? null);
           setHeroVideoUrl(s.hero_video_url ?? null);
+          setHeroVideoUrlDraft(s.hero_video_url ?? '');
           setGalleryImages(s.gallery_images ?? []);
           setDisplayOptions({ ...DEFAULT_DISPLAY_OPTIONS, ...(s.display_options ?? {}) });
         }
@@ -143,20 +146,40 @@ export default function AdminPortal() {
     setHeroUploading(false);
   };
 
+  const MAX_VIDEO_MB = 200;
+
   const handleHeroVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !site) return;
+    setHeroVideoError('');
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+      setHeroVideoError(`File is too large. Max ${MAX_VIDEO_MB} MB for uploads — paste a URL instead for bigger videos.`);
+      e.target.value = '';
+      return;
+    }
     setHeroVideoUploading(true);
     const ext = file.name.split('.').pop();
     const path = `hero-video/${site.id}.${ext}`;
     const { error } = await supabase.storage.from('client-assets').upload(path, file, { upsert: true });
-    if (!error) {
+    if (error) {
+      setHeroVideoError(error.message);
+    } else {
       const { data } = supabase.storage.from('client-assets').getPublicUrl(path);
       setHeroVideoUrl(data.publicUrl);
+      setHeroVideoUrlDraft(data.publicUrl);
       setDisplayOptions(prev => ({ ...prev, hero_media_type: 'video' }));
       setSaved(false);
     }
     setHeroVideoUploading(false);
+  };
+
+  const applyVideoUrl = () => {
+    const trimmed = heroVideoUrlDraft.trim();
+    if (!trimmed) return;
+    setHeroVideoUrl(trimmed);
+    setDisplayOptions(prev => ({ ...prev, hero_media_type: 'video' }));
+    setHeroVideoError('');
+    setSaved(false);
   };
 
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>, slot: number) => {
@@ -465,32 +488,71 @@ export default function AdminPortal() {
                       </div>
                     )}
 
-                    {/* Video upload */}
+                    {/* Video upload + URL */}
                     {displayOptions.hero_media_type === 'video' && (
-                      <div className="flex items-start gap-4">
-                        {heroVideoUrl ? (
-                          <div className="relative flex-shrink-0">
-                            <video src={heroVideoUrl} className="h-20 w-32 object-cover rounded-lg border" muted />
+                      <div className="space-y-3">
+                        {/* Preview + clear */}
+                        {heroVideoUrl && (
+                          <div className="relative inline-block">
+                            {heroVideoUrl.includes('youtube.com') || heroVideoUrl.includes('youtu.be') ? (
+                              <img
+                                src={`https://img.youtube.com/vi/${heroVideoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1]}/hqdefault.jpg`}
+                                alt="YouTube thumbnail"
+                                className="h-20 w-32 object-cover rounded-lg border"
+                              />
+                            ) : (
+                              <video src={heroVideoUrl} className="h-20 w-32 object-cover rounded-lg border" muted />
+                            )}
                             <button
-                              onClick={() => { setHeroVideoUrl(null); setSaved(false); }}
+                              onClick={() => { setHeroVideoUrl(null); setHeroVideoUrlDraft(''); setSaved(false); }}
                               className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
                             >
                               <Trash2 size={12} />
                             </button>
                           </div>
-                        ) : (
-                          <div className="h-20 w-32 rounded-lg border bg-muted flex items-center justify-center flex-shrink-0">
-                            <Upload size={20} className="text-muted-foreground" />
-                          </div>
                         )}
-                        <div>
+
+                        {/* Upload */}
+                        <div className="flex items-center gap-3">
                           <label className="btn btn-outline text-sm cursor-pointer py-1.5 px-3 inline-flex items-center gap-2">
                             <Upload size={14} />
-                            {heroVideoUploading ? 'Uploading…' : heroVideoUrl ? 'Change Video' : 'Upload Video'}
-                            <input type="file" accept="video/*" className="hidden" onChange={handleHeroVideoUpload} disabled={heroVideoUploading} />
+                            {heroVideoUploading ? 'Uploading…' : 'Upload MP4'}
+                            <input type="file" accept="video/mp4,video/webm,video/mov" className="hidden" onChange={handleHeroVideoUpload} disabled={heroVideoUploading} />
                           </label>
-                          <p className="text-xs text-muted-foreground mt-1.5">MP4 recommended. Plays autoplay, muted, looped.</p>
+                          <span className="text-xs text-muted-foreground">Max {MAX_VIDEO_MB} MB</span>
                         </div>
+
+                        {/* Divider */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-px bg-gray-200" />
+                          <span className="text-xs text-muted-foreground">or paste a URL</span>
+                          <div className="flex-1 h-px bg-gray-200" />
+                        </div>
+
+                        {/* URL input */}
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            value={heroVideoUrlDraft}
+                            onChange={e => setHeroVideoUrlDraft(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && applyVideoUrl()}
+                            placeholder="YouTube URL or direct MP4 link"
+                            className="flex-1 px-3 py-2 rounded-md border border-input bg-background text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                          <button
+                            onClick={applyVideoUrl}
+                            disabled={!heroVideoUrlDraft.trim()}
+                            className="btn btn-outline text-xs px-3 disabled:opacity-40"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">YouTube videos and direct MP4 links both work. Videos play muted and looped.</p>
+
+                        {/* Error */}
+                        {heroVideoError && (
+                          <p className="text-xs text-red-600 bg-red-50 rounded-md px-3 py-2">{heroVideoError}</p>
+                        )}
                       </div>
                     )}
 
