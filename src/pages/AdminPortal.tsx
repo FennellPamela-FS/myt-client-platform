@@ -58,7 +58,9 @@ export default function AdminPortal() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+  const [heroVideoUrl, setHeroVideoUrl] = useState<string | null>(null);
   const [heroUploading, setHeroUploading] = useState(false);
+  const [heroVideoUploading, setHeroVideoUploading] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
   const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY_OPTIONS);
@@ -96,6 +98,7 @@ export default function AdminPortal() {
           setTheme(s.theme || 'professional');
           setLogoUrl(s.logo_url ?? null);
           setHeroImageUrl(s.hero_image_url ?? null);
+          setHeroVideoUrl(s.hero_video_url ?? null);
           setGalleryImages(s.gallery_images ?? []);
           setDisplayOptions({ ...DEFAULT_DISPLAY_OPTIONS, ...(s.display_options ?? {}) });
         }
@@ -140,6 +143,22 @@ export default function AdminPortal() {
     setHeroUploading(false);
   };
 
+  const handleHeroVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !site) return;
+    setHeroVideoUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `hero-video/${site.id}.${ext}`;
+    const { error } = await supabase.storage.from('client-assets').upload(path, file, { upsert: true });
+    if (!error) {
+      const { data } = supabase.storage.from('client-assets').getPublicUrl(path);
+      setHeroVideoUrl(data.publicUrl);
+      setDisplayOptions(prev => ({ ...prev, hero_media_type: 'video' }));
+      setSaved(false);
+    }
+    setHeroVideoUploading(false);
+  };
+
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>, slot: number) => {
     const file = e.target.files?.[0];
     if (!file || !site) return;
@@ -176,6 +195,7 @@ export default function AdminPortal() {
         theme,
         logo_url: logoUrl,
         hero_image_url: heroImageUrl,
+        hero_video_url: heroVideoUrl,
         gallery_images: galleryImages,
         display_options: displayOptions,
       })
@@ -203,7 +223,7 @@ export default function AdminPortal() {
 
   const content = resolveSiteContent(site);
   const liveContent = content ? { ...content, ...edits } as SiteContent : null;
-  const liveBranding = { logoUrl, primaryColor, secondaryColor, accentColor, theme, heroImageUrl, galleryImages: galleryImages.filter(Boolean) };
+  const liveBranding = { logoUrl, primaryColor, secondaryColor, accentColor, theme, heroImageUrl, heroVideoUrl, galleryImages: galleryImages.filter(Boolean) };
   const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
 
   return (
@@ -393,35 +413,102 @@ export default function AdminPortal() {
                   <p className="text-sm text-muted-foreground">Edit the content for this section</p>
                 </div>
 
-                {/* Hero image upload */}
+                {/* Hero media */}
                 {activeSection === 'hero' && (
-                  <div className="card">
-                    <h3 className="font-medium text-sm mb-3">Hero Image</h3>
-                    <div className="flex items-start gap-4">
-                      {heroImageUrl ? (
-                        <div className="relative flex-shrink-0">
-                          <img src={heroImageUrl} alt="Hero" className="h-20 w-32 object-cover rounded-lg border" />
-                          <button
-                            onClick={() => { setHeroImageUrl(null); setSaved(false); }}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="h-20 w-32 rounded-lg border bg-muted flex items-center justify-center flex-shrink-0">
-                          <Image size={20} className="text-muted-foreground" />
-                        </div>
-                      )}
-                      <div>
-                        <label className="btn btn-outline text-sm cursor-pointer py-1.5 px-3 inline-flex items-center gap-2">
-                          <Upload size={14} />
-                          {heroUploading ? 'Uploading…' : heroImageUrl ? 'Change Image' : 'Upload Image'}
-                          <input type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} disabled={heroUploading} />
-                        </label>
-                        <p className="text-xs text-muted-foreground mt-1.5">Replaces the auto-generated industry photo. Landscape works best.</p>
-                      </div>
+                  <div className="card space-y-4">
+                    <h3 className="font-medium text-sm">Hero Media</h3>
+
+                    {/* Image / Video toggle */}
+                    <div className="flex rounded-lg border border-gray-200 p-1 gap-1">
+                      {(['image', 'video'] as const).map(type => (
+                        <button
+                          key={type}
+                          onClick={() => { setDisplayOptions(prev => ({ ...prev, hero_media_type: type })); setSaved(false); }}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-md transition-colors capitalize ${
+                            displayOptions.hero_media_type === type
+                              ? 'bg-gray-900 text-white'
+                              : 'text-gray-500 hover:text-gray-700'
+                          }`}
+                        >
+                          {type === 'image' ? <Image size={13} /> : <Upload size={13} />}
+                          {type}
+                        </button>
+                      ))}
                     </div>
+
+                    {/* Image upload */}
+                    {displayOptions.hero_media_type === 'image' && (
+                      <div className="flex items-start gap-4">
+                        {heroImageUrl ? (
+                          <div className="relative flex-shrink-0">
+                            <img src={heroImageUrl} alt="Hero" className="h-20 w-32 object-cover rounded-lg border" />
+                            <button
+                              onClick={() => { setHeroImageUrl(null); setSaved(false); }}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="h-20 w-32 rounded-lg border bg-muted flex items-center justify-center flex-shrink-0">
+                            <Image size={20} className="text-muted-foreground" />
+                          </div>
+                        )}
+                        <div>
+                          <label className="btn btn-outline text-sm cursor-pointer py-1.5 px-3 inline-flex items-center gap-2">
+                            <Upload size={14} />
+                            {heroUploading ? 'Uploading…' : heroImageUrl ? 'Change Image' : 'Upload Image'}
+                            <input type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} disabled={heroUploading} />
+                          </label>
+                          <p className="text-xs text-muted-foreground mt-1.5">Replaces the auto-generated industry photo. Landscape works best.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Video upload */}
+                    {displayOptions.hero_media_type === 'video' && (
+                      <div className="flex items-start gap-4">
+                        {heroVideoUrl ? (
+                          <div className="relative flex-shrink-0">
+                            <video src={heroVideoUrl} className="h-20 w-32 object-cover rounded-lg border" muted />
+                            <button
+                              onClick={() => { setHeroVideoUrl(null); setSaved(false); }}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="h-20 w-32 rounded-lg border bg-muted flex items-center justify-center flex-shrink-0">
+                            <Upload size={20} className="text-muted-foreground" />
+                          </div>
+                        )}
+                        <div>
+                          <label className="btn btn-outline text-sm cursor-pointer py-1.5 px-3 inline-flex items-center gap-2">
+                            <Upload size={14} />
+                            {heroVideoUploading ? 'Uploading…' : heroVideoUrl ? 'Change Video' : 'Upload Video'}
+                            <input type="file" accept="video/*" className="hidden" onChange={handleHeroVideoUpload} disabled={heroVideoUploading} />
+                          </label>
+                          <p className="text-xs text-muted-foreground mt-1.5">MP4 recommended. Plays autoplay, muted, looped.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Background mirror toggle — only relevant for image mode */}
+                    {displayOptions.hero_media_type === 'image' && (
+                      <button
+                        onClick={() => { setDisplayOptions(prev => ({ ...prev, hero_bg_mirror: !prev.hero_bg_mirror })); setSaved(false); }}
+                        className="w-full flex items-center justify-between py-2 text-sm border-t pt-4"
+                      >
+                        <div>
+                          <p className="font-medium text-left">Faint background mirror</p>
+                          <p className="text-xs text-muted-foreground text-left">Shows a blurred, very faint version of the hero image behind the section</p>
+                        </div>
+                        {displayOptions.hero_bg_mirror
+                          ? <ToggleRight size={22} style={{ color: primaryColor }} />
+                          : <ToggleLeft size={22} className="text-gray-300" />}
+                      </button>
+                    )}
                   </div>
                 )}
 

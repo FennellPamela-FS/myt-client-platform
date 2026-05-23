@@ -52,6 +52,8 @@ export type DisplayOptions = {
   show_footer_logo: boolean;
   show_footer_name: boolean;
   use_booking_cta: boolean;
+  hero_media_type: 'image' | 'video';
+  hero_bg_mirror: boolean;
 };
 
 export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
@@ -64,6 +66,8 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   show_footer_logo: true,
   show_footer_name: true,
   use_booking_cta: false,
+  hero_media_type: 'image',
+  hero_bg_mirror: false,
 };
 
 export type ClientSite = {
@@ -83,6 +87,7 @@ export type ClientSite = {
   custom_edits: Partial<SiteContent> | null;
   display_options: DisplayOptions | null;
   hero_image_url: string | null;
+  hero_video_url: string | null;
   gallery_images: string[] | null;
   status: 'active' | 'inactive' | 'pending';
   created_at: string;
@@ -95,6 +100,7 @@ export type SiteBranding = {
   accentColor: string;
   theme: ThemeSelection;
   heroImageUrl: string | null;
+  heroVideoUrl: string | null;
   galleryImages: string[];
 };
 
@@ -111,6 +117,7 @@ export function resolveBranding(site: ClientSite): SiteBranding {
     accentColor: site.accent_color || '#45899E',
     theme: site.theme || 'professional',
     heroImageUrl: site.hero_image_url ?? null,
+    heroVideoUrl: site.hero_video_url ?? null,
     galleryImages: site.gallery_images ?? [],
   };
 }

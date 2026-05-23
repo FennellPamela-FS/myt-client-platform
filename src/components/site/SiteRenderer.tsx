@@ -117,6 +117,8 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
   const [bookingOpen, setBookingOpen] = useState(false);
 
   const heroImg = branding.heroImageUrl || INDUSTRY_IMAGES[content.industry_category] || INDUSTRY_IMAGES.other;
+  const heroVideo = opts.hero_media_type === 'video' ? branding.heroVideoUrl : null;
+  const showBgMirror = opts.hero_bg_mirror && !!heroImg;
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   const cssVars = {
@@ -174,8 +176,15 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       {tc.heroLayout === 'split' ? (
-        <section className={`${tc.sectionBg} min-h-[85vh] flex items-center`}>
-          <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center w-full">
+        <section className={`${tc.sectionBg} min-h-[85vh] flex items-center relative overflow-hidden`}>
+          {/* Faint background mirror */}
+          {showBgMirror && (
+            <div
+              className="absolute inset-0 bg-cover bg-center scale-110"
+              style={{ backgroundImage: `url(${heroImg})`, opacity: 0.07, filter: 'blur(20px)' }}
+            />
+          )}
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center w-full">
             {/* Left: copy */}
             <div>
               <p className={`text-sm font-semibold uppercase tracking-widest mb-4`}
@@ -208,14 +217,21 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
                 </a>
               </div>
             </div>
-            {/* Right: image */}
+            {/* Right: image or video */}
             <div className={`relative overflow-hidden ${tc.radiusClass} shadow-2xl h-[480px]`}
               style={{ background: `linear-gradient(135deg, ${branding.primaryColor}33, ${branding.accentColor}55)` }}>
-              <img
-                src={heroImg}
-                alt={businessName}
-                className="w-full h-full object-cover"
-              />
+              {heroVideo ? (
+                <video
+                  src={heroVideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img src={heroImg} alt={businessName} className="w-full h-full object-cover" />
+              )}
               <div
                 className="absolute inset-0 opacity-30"
                 style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})` }}
@@ -229,7 +245,18 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
           className="min-h-screen flex items-center justify-center text-center relative overflow-hidden"
           style={{ background: `linear-gradient(180deg, ${branding.secondaryColor}22 0%, transparent 100%)` }}
         >
-          <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-10" />
+          {heroVideo ? (
+            <video
+              src={heroVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover opacity-20"
+            />
+          ) : (
+            <img src={heroImg} alt="" className={`absolute inset-0 w-full h-full object-cover ${showBgMirror ? 'opacity-20' : 'opacity-10'}`} />
+          )}
           <div className="relative z-10 max-w-4xl mx-auto px-6 py-24">
             <p className="text-xs tracking-[0.4em] uppercase mb-8 text-neutral-400">{content.brand_tagline}</p>
             <h1 className={`text-5xl md:text-7xl mb-8 leading-tight ${tc.headingClass}`}
