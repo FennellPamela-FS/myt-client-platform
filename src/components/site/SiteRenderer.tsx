@@ -484,7 +484,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
                 {content.contact_form_title || 'Get Your Free Estimate'}
               </h2>
               <p className={`${isLuxury ? 'text-neutral-400' : 'text-gray-500'}`}>
-                Ready to get started? Fill out the form and we'll get back to you within 24 hours.
+                {content.contact_form_subtitle || 'Ready to get started? Fill out the form and we\'ll get back to you within 24 hours.'}
               </p>
             </div>
 
@@ -559,7 +559,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
                     <button type="submit"
                       className={`w-full py-3 text-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
                       style={{ backgroundColor: branding.primaryColor }}>
-                      Get Free Estimate
+                      {content.contact_form_button_text || 'Get Free Estimate'}
                     </button>
                   </form>
                 )}

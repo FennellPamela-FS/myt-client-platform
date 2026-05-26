@@ -36,6 +36,8 @@ export type SiteContent = {
   business_address: string;
   business_hours: string;
   contact_form_title: string;
+  contact_form_subtitle: string;
+  contact_form_button_text: string;
   booking_url: string;
   business_email: string;
   industry_category: string;
