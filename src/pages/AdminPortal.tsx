@@ -60,9 +60,8 @@ export default function AdminPortal() {
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
   const [heroVideoUrl, setHeroVideoUrl] = useState<string | null>(null);
   const [heroVideoUrlDraft, setHeroVideoUrlDraft] = useState('');
-  const [heroUploading, setHeroUploading] = useState(false);
-  const [heroVideoUploading, setHeroVideoUploading] = useState(false);
   const [heroVideoError, setHeroVideoError] = useState('');
+  const [heroUploading, setHeroUploading] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
   const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY_OPTIONS);
@@ -144,33 +143,6 @@ export default function AdminPortal() {
       setSaved(false);
     }
     setHeroUploading(false);
-  };
-
-  const MAX_VIDEO_MB = 200;
-
-  const handleHeroVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !site) return;
-    setHeroVideoError('');
-    if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
-      setHeroVideoError(`File is too large. Max ${MAX_VIDEO_MB} MB for uploads — paste a URL instead for bigger videos.`);
-      e.target.value = '';
-      return;
-    }
-    setHeroVideoUploading(true);
-    const ext = file.name.split('.').pop();
-    const path = `hero-video/${site.id}.${ext}`;
-    const { error } = await supabase.storage.from('client-assets').upload(path, file, { upsert: true });
-    if (error) {
-      setHeroVideoError(error.message);
-    } else {
-      const { data } = supabase.storage.from('client-assets').getPublicUrl(path);
-      setHeroVideoUrl(data.publicUrl);
-      setHeroVideoUrlDraft(data.publicUrl);
-      setDisplayOptions(prev => ({ ...prev, hero_media_type: 'video' }));
-      setSaved(false);
-    }
-    setHeroVideoUploading(false);
   };
 
   const applyVideoUrl = () => {
@@ -511,23 +483,6 @@ export default function AdminPortal() {
                             </button>
                           </div>
                         )}
-
-                        {/* Upload */}
-                        <div className="flex items-center gap-3">
-                          <label className="btn btn-outline text-sm cursor-pointer py-1.5 px-3 inline-flex items-center gap-2">
-                            <Upload size={14} />
-                            {heroVideoUploading ? 'Uploading…' : 'Upload MP4'}
-                            <input type="file" accept="video/mp4,video/webm,video/mov" className="hidden" onChange={handleHeroVideoUpload} disabled={heroVideoUploading} />
-                          </label>
-                          <span className="text-xs text-muted-foreground">Max {MAX_VIDEO_MB} MB</span>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-px bg-gray-200" />
-                          <span className="text-xs text-muted-foreground">or paste a URL</span>
-                          <div className="flex-1 h-px bg-gray-200" />
-                        </div>
 
                         {/* URL input */}
                         <div className="flex gap-2">
