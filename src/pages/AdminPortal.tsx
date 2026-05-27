@@ -7,8 +7,23 @@ import { resolveSiteContent } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
 import {
   Save, LogOut, Eye, EyeOff, Upload, Palette,
-  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, ToggleLeft, ToggleRight, Image, Trash2, Globe
+  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, Image, Trash2, Globe
 } from 'lucide-react';
+
+// ─── Toggle switch ────────────────────────────────────────────────────────────
+function Toggle({ on, color }: { on: boolean; color: string }) {
+  return (
+    <div
+      className="relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200"
+      style={{ backgroundColor: on ? color : '#D1D5DB' }}
+    >
+      <span
+        className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200"
+        style={{ transform: on ? 'translateX(20px)' : 'translateX(0)' }}
+      />
+    </div>
+  );
+}
 
 // ─── Section groups ───────────────────────────────────────────────────────────
 
@@ -527,9 +542,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                           <p className="font-medium text-left">Faint background mirror</p>
                           <p className="text-xs text-muted-foreground text-left">Shows a blurred, very faint version of the hero image behind the section</p>
                         </div>
-                        {displayOptions.hero_bg_mirror
-                          ? <ToggleRight size={22} style={{ color: primaryColor }} />
-                          : <ToggleLeft size={22} className="text-gray-300" />}
+                        <Toggle on={displayOptions.hero_bg_mirror} color={primaryColor} />
                       </button>
                     )}
                   </div>
@@ -647,9 +660,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                         <p className="font-medium text-left">Use booking / calendar link</p>
                         <p className="text-xs text-muted-foreground text-left">Button opens a scheduling modal instead of scrolling to the contact form</p>
                       </div>
-                      {displayOptions.use_booking_cta
-                        ? <ToggleRight size={22} style={{ color: primaryColor }} />
-                        : <ToggleLeft size={22} className="text-gray-300" />}
+                      <Toggle on={displayOptions.use_booking_cta} color={primaryColor} />
                     </button>
                     {displayOptions.use_booking_cta && (
                       <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
@@ -679,9 +690,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                         className="w-full flex items-center justify-between py-2 text-sm"
                       >
                         <span>{label}</span>
-                        {displayOptions[key]
-                          ? <ToggleRight size={22} style={{ color: primaryColor }} />
-                          : <ToggleLeft size={22} className="text-gray-300" />}
+                        <Toggle on={!!displayOptions[key]} color={primaryColor} />
                       </button>
                     ))}
                   </div>
