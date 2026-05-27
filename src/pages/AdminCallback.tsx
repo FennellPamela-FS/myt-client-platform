@@ -49,8 +49,9 @@ export default function AdminCallback() {
       }
 
       // ── Mode C: platform host login (myt-client-platform.netlify.app or
-      //           mytcreative.app) — find the user's site and send them to
-      //           their custom domain admin if one is configured. ─────────────
+      //           mytcreative.app) — find the user's site. If it has a custom
+      //           domain, relay tokens there so a session is established on
+      //           that domain before landing on /admin. ──────────────────────
       const { data } = await supabase
         .from('client_sites_saas')
         .select('slug, custom_domain')
@@ -60,8 +61,17 @@ export default function AdminCallback() {
       const row = data as unknown as { slug: string; custom_domain: string | null } | null;
       if (row?.slug) {
         if (row.custom_domain) {
-          // Send them directly to their white-labeled admin
-          window.location.href = `https://${row.custom_domain}/admin`;
+          // Relay tokens to the custom domain's /admin/callback so Supabase
+          // can establish a session there, then Mode B lands them on /admin.
+          const callbackUrl = `https://${row.custom_domain}/admin/callback`;
+          const params = new URLSearchParams({
+            access_token:  session.access_token,
+            refresh_token: session.refresh_token ?? '',
+            expires_in:    String(session.expires_in ?? 3600),
+            token_type:    'bearer',
+            type:          'magiclink',
+          });
+          window.location.href = `${callbackUrl}#${params.toString()}`;
         } else {
           navigate(`/site/${row.slug}/admin`, { replace: true });
         }
