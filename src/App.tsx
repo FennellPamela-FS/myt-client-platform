@@ -19,27 +19,31 @@ function isPlatformHost(hostname: string): boolean {
   return PLATFORM_HOSTS.has(hostname) || hostname.endsWith('.netlify.app');
 }
 
-// ── Custom-domain shell ───────────────────────────────────────────────────────
-// When a visitor lands on e.g. www.guestconnectai.com, this component looks up
-// the matching slug from Supabase then renders clean white-labeled routes at
-// the domain root — no /site/:slug path ever appears in the address bar.
+// ── Custom-domain: auth callback fast path ────────────────────────────────────
+// Rendered immediately when the path is /admin/callback so that Supabase can
+// parse the access_token hash without waiting for the slug lookup.
+// AdminCallback uses window.location.replace() (not React Router navigate) so
+// it escapes this mini-router and triggers a clean full-page load at /admin.
 
-function CustomDomainApp() {
+function CustomDomainCallbackPage() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<AdminCallback />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+// ── Custom-domain: main site app ──────────────────────────────────────────────
+// Looks up the slug for the current hostname then renders clean white-labeled
+// routes — no /site/:slug path ever appears in the address bar.
+// ALL hooks are unconditional here (no early returns before any hook).
+
+function CustomDomainSiteApp() {
   const hostname = window.location.hostname;
   const [slug, setSlug] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
-
-  // Fast path: render the auth callback immediately — tokens in the URL hash
-  // must be processed right away, before the slug lookup completes.
-  if (window.location.pathname === '/admin/callback') {
-    return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/admin/callback" element={<AdminCallback />} />
-        </Routes>
-      </BrowserRouter>
-    );
-  }
 
   useEffect(() => {
     supabase
@@ -57,7 +61,6 @@ function CustomDomainApp() {
       });
   }, [hostname]);
 
-  // Loading — slug lookup in progress
   if (!slug && !notFound) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -69,7 +72,6 @@ function CustomDomainApp() {
     );
   }
 
-  // No site matched this domain
   if (notFound) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center px-4 bg-gray-50">
@@ -79,7 +81,6 @@ function CustomDomainApp() {
     );
   }
 
-  // Clean white-labeled routes — no /site/:slug prefix
   return (
     <BrowserRouter>
       <Routes>
@@ -87,11 +88,19 @@ function CustomDomainApp() {
         <Route path="/admin"          element={<AdminPortal slug={slug!} />} />
         <Route path="/admin/login"    element={<AdminLogin />} />
         <Route path="/admin/callback" element={<AdminCallback />} />
-        {/* Catch-all — render the site for any unrecognised path on a custom domain */}
         <Route path="*"               element={<SitePage    slug={slug!} />} />
       </Routes>
     </BrowserRouter>
   );
+}
+
+// ── Custom-domain router: no hooks — pure conditional dispatch ────────────────
+
+function CustomDomainApp() {
+  if (window.location.pathname === '/admin/callback') {
+    return <CustomDomainCallbackPage />;
+  }
+  return <CustomDomainSiteApp />;
 }
 
 // ── Standard platform app ─────────────────────────────────────────────────────
@@ -106,12 +115,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"                    element={<RootPage />} />
-        <Route path="/site/:slug"          element={<SitePage />} />
-        <Route path="/site/:slug/admin"    element={<AdminPortal />} />
-        <Route path="/admin/login"         element={<AdminLogin />} />
-        <Route path="/admin/callback"      element={<AdminCallback />} />
-        <Route path="*"                    element={<NotFound />} />
+        <Route path="/"                 element={<RootPage />} />
+        <Route path="/site/:slug"       element={<SitePage />} />
+        <Route path="/site/:slug/admin" element={<AdminPortal />} />
+        <Route path="/admin/login"      element={<AdminLogin />} />
+        <Route path="/admin/callback"   element={<AdminCallback />} />
+        <Route path="*"                 element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
