@@ -81,16 +81,20 @@ export default async function handler(req: Request, context: Context) {
   const { slug } = rows[0];
 
   // /admin on a custom domain → /site/[slug]/admin, everything else → /site/[slug]
+  // Use a sub-path on the current path: /about → /site/[slug]/about
   const targetPath = url.pathname === '/admin'
     ? `/site/${slug}/admin`
     : `/site/${slug}${url.pathname === '/' ? '' : url.pathname}`;
 
-  console.log(`[custom-domain] rewriting ${hostname}${url.pathname} → ${targetPath}`);
+  console.log(`[custom-domain] redirecting ${hostname}${url.pathname} → ${targetPath}`);
 
-  const rewriteUrl = new URL(req.url);
-  rewriteUrl.pathname = targetPath;
+  // Use a redirect (not rewrite) so React Router sees the correct path.
+  // context.rewrite() keeps the browser URL at "/" which causes React Router
+  // to render RootPage instead of SitePage.
+  const redirectUrl = new URL(req.url);
+  redirectUrl.pathname = targetPath;
 
-  return context.rewrite(rewriteUrl);
+  return Response.redirect(redirectUrl.toString(), 302);
 }
 
 export const config: Config = {
