@@ -155,7 +155,10 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
   }
 
   const tc = THEME_CONFIGS[branding.theme];
-  const isLuxury = branding.theme === 'luxury';
+  const isLuxury   = branding.theme === 'luxury';
+  const isCreative = branding.theme === 'creative';
+  // creative uses bg-gray-950 for altSectionBg — needs light text just like luxury
+  const isDarkAltBg = isLuxury || isCreative;
   const opts = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };
   const [formSent, setFormSent] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', service: '', message: '' });
@@ -329,13 +332,13 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       {/* ── About ──────────────────────────────────────────────────────── */}
       <section id="about" className={`py-24 px-6 ${tc.altSectionBg}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className={`text-3xl md:text-4xl mb-6 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+          <h2 className={`text-3xl md:text-4xl mb-6 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
             {content.about_headline}
           </h2>
-          <p className={`text-lg mb-6 leading-relaxed ${isLuxury ? 'text-neutral-400' : 'text-gray-600'}`}>
+          <p className={`text-lg mb-6 leading-relaxed ${isDarkAltBg ? 'text-neutral-300' : 'text-gray-600'}`}>
             {content.about_body}
           </p>
-          <p className={`text-base italic mb-10 ${isLuxury ? 'text-neutral-500' : 'text-gray-400'}`}>
+          <p className={`text-base italic mb-10 ${isDarkAltBg ? 'text-neutral-400' : 'text-gray-400'}`}>
             {content.about_mission}
           </p>
           <a
@@ -422,20 +425,20 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       {/* ── Benefits ───────────────────────────────────────────────────── */}
       <section id="benefits" className={`py-24 px-6 ${tc.altSectionBg}`}>
         <div className="max-w-7xl mx-auto">
-          <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+          <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
             Why Choose Us
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[1, 2, 3, 4].map(n => (
               <div key={n} className="text-center">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold"
-                  style={{ backgroundColor: `${branding.primaryColor}22`, color: branding.primaryColor }}>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 font-bold"
+                  style={{ backgroundColor: `${branding.primaryColor}33`, color: branding.primaryColor }}>
                   0{n}
                 </div>
-                <h3 className={`font-semibold mb-2 ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                <h3 className={`font-semibold mb-2 ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
                   {content[`benefit_${n}_title` as keyof SiteContent]}
                 </h3>
-                <p className={`text-sm ${isLuxury ? 'text-neutral-400' : 'text-gray-500'}`}>
+                <p className={`text-sm ${isDarkAltBg ? 'text-neutral-400' : 'text-gray-500'}`}>
                   {content[`benefit_${n}_description` as keyof SiteContent]}
                 </p>
               </div>
@@ -474,7 +477,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       {/* ── CTA banner ─────────────────────────────────────────────────── */}
       <section
         className="py-24 px-6 text-white text-center"
-        style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})` }}
+        style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.secondaryColor})` }}
       >
         <div className="max-w-3xl mx-auto">
           <h2 className={`text-3xl md:text-5xl mb-6 ${tc.headingClass}`}>
