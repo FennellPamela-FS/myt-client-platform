@@ -5,8 +5,14 @@ import type { ClientSite } from '../types/database';
 import { resolveSiteContent, resolveBranding } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
 
-export default function SitePage() {
-  const { slug } = useParams<{ slug: string }>();
+interface SitePageProps {
+  /** Passed directly when rendering on a custom domain (bypasses useParams). */
+  slug?: string;
+}
+
+export default function SitePage({ slug: slugProp }: SitePageProps) {
+  const params = useParams<{ slug: string }>();
+  const slug = slugProp ?? params.slug;
   const [site, setSite] = useState<ClientSite | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);

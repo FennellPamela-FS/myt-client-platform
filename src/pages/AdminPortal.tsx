@@ -44,8 +44,14 @@ function isTextarea(key: string) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function AdminPortal() {
-  const { slug } = useParams<{ slug: string }>();
+interface AdminPortalProps {
+  /** Passed directly when rendering on a custom domain (bypasses useParams). */
+  slug?: string;
+}
+
+export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
+  const params = useParams<{ slug: string }>();
+  const slug = slugProp ?? params.slug;
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -246,7 +252,7 @@ export default function AdminPortal() {
               {showPreview ? <EyeOff size={15} /> : <Eye size={15} />}
               {showPreview ? 'Hide Preview' : 'Show Preview'}
             </button>
-            <a href={`/site/${slug}`} target="_blank" rel="noreferrer"
+            <a href={slugProp ? '/' : `/site/${slug}`} target="_blank" rel="noreferrer"
               className="btn btn-ghost text-sm gap-1.5 hidden md:flex">
               <Eye size={15} /> View Live
             </a>
