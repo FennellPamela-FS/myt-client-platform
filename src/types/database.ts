@@ -94,6 +94,8 @@ export type ClientSite = {
   hero_video_url: string | null;
   gallery_images: string[] | null;
   status: 'active' | 'inactive' | 'pending';
+  /** Kairos Award: number of premium expansion modules unlocked (0 = standard plan). */
+  bonus_page_allocation: number;
   created_at: string;
 };
 
@@ -167,7 +169,7 @@ export type Database = {
     Tables: {
       client_sites_saas: {
         Row: ClientSite;
-        Insert: Omit<ClientSite, 'id' | 'created_at'>;
+        Insert: Omit<ClientSite, 'id' | 'created_at' | 'bonus_page_allocation'> & { bonus_page_allocation?: number };
         Update: Partial<Omit<ClientSite, 'id' | 'created_at'>>;
         Relationships: [];
       };

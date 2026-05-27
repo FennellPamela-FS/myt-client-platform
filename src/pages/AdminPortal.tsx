@@ -7,7 +7,8 @@ import { resolveSiteContent } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
 import {
   Save, LogOut, Eye, EyeOff, Upload, Palette,
-  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, Image, Trash2, Globe
+  Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, Image, Trash2, Globe,
+  Trophy, Users, FolderOpen, Newspaper, Lock
 } from 'lucide-react';
 
 // ─── Toggle switch ────────────────────────────────────────────────────────────
@@ -311,6 +312,26 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                 </button>
               );
             })}
+
+            {/* ── Kairos Award — shown only when bonus pages are allocated ── */}
+            {(site?.bonus_page_allocation ?? 0) > 0 ? (
+              <button
+                onClick={() => { setActiveSection('kairos'); setSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left mt-1 border ${
+                  activeSection === 'kairos'
+                    ? 'bg-amber-500 text-white border-amber-500'
+                    : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                }`}
+              >
+                <Trophy size={16} />
+                Kairos Award
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-300 mt-1 border border-dashed border-gray-200 cursor-default select-none">
+                <Lock size={16} />
+                Kairos Award
+              </div>
+            )}
           </nav>
           <div className="p-3 border-t">
             <button onClick={handleSave} disabled={saving}
@@ -760,6 +781,92 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
               </div>
             )}
           </div>
+
+          {/* ── Kairos Award section ──────────────────────────────────── */}
+          {activeSection === 'kairos' && (
+            <div className="space-y-6">
+              {/* Award header */}
+              <div className="rounded-2xl bg-gray-900 px-6 py-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center mx-auto mb-4">
+                  <Trophy size={26} className="text-amber-400" />
+                </div>
+                <p className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400 mb-2">Kairos Award</p>
+                <h2 className="text-xl font-bold text-white">Premium Expansion Modules</h2>
+                <p className="text-gray-400 text-sm mt-2 leading-relaxed max-w-xs mx-auto">
+                  You've been recognized for your commitment. These premium pages are now part of your platform.
+                </p>
+                <div className="mt-4 inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/20 rounded-full px-4 py-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span className="text-amber-300 text-xs font-medium">
+                    {site?.bonus_page_allocation} module{(site?.bonus_page_allocation ?? 0) !== 1 ? 's' : ''} unlocked
+                  </span>
+                </div>
+              </div>
+
+              {/* Module cards */}
+              {[
+                {
+                  slot: 1,
+                  icon: Users,
+                  title: "Meet the Team / Founder's Story",
+                  description: "Introduce your team and share the founding story behind your business. Build trust before the first call.",
+                },
+                {
+                  slot: 2,
+                  icon: FolderOpen,
+                  title: 'Portfolio / Case Studies',
+                  description: "Showcase your best work, client transformations, and measurable results. Let your outcomes do the selling.",
+                },
+                {
+                  slot: 3,
+                  icon: Newspaper,
+                  title: 'Press, Awards & Community',
+                  description: "Share media features, industry recognition, and community involvement. Establish authority and social proof.",
+                },
+              ].map(({ slot, icon: Icon, title, description }) => {
+                const unlocked = (site?.bonus_page_allocation ?? 0) >= slot;
+                return (
+                  <div
+                    key={slot}
+                    className={`rounded-xl border p-5 flex gap-4 items-start transition-colors ${
+                      unlocked
+                        ? 'bg-white border-amber-200'
+                        : 'bg-gray-50 border-gray-200 opacity-50'
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      unlocked ? 'bg-amber-50' : 'bg-gray-100'
+                    }`}>
+                      <Icon size={20} className={unlocked ? 'text-amber-500' : 'text-gray-400'} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border flex-shrink-0 ${
+                          unlocked
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : 'bg-gray-100 text-gray-400 border-gray-200'
+                        }`}>
+                          {unlocked ? 'Available' : 'Locked'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 leading-relaxed">{description}</p>
+                      {unlocked && (
+                        <button
+                          disabled
+                          className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-400/10 text-amber-600 border border-amber-200 cursor-not-allowed"
+                          title="Full page activation coming in the next release"
+                        >
+                          <Trophy size={12} />
+                          Activate Page — Coming Soon
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* ── Live preview ──────────────────────────────────────────── */}
           {showPreview && liveContent && (
