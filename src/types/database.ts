@@ -169,17 +169,22 @@ export type Database = {
         Row: ClientSite;
         Insert: Omit<ClientSite, 'id' | 'created_at'>;
         Update: Partial<Omit<ClientSite, 'id' | 'created_at'>>;
+        Relationships: [];
       };
       event_inquiries: {
         Row: EventInquiry;
         Insert: Omit<EventInquiry, 'id' | 'created_at' | 'status'>;
         Update: Partial<Omit<EventInquiry, 'id' | 'created_at'>>;
+        Relationships: [];
       };
       menu_items: {
         Row: MenuItem;
         Insert: Omit<MenuItem, 'id' | 'created_at'>;
         Update: Partial<Omit<MenuItem, 'id' | 'created_at'>>;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
   };
 };
