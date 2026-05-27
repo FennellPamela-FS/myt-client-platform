@@ -26,6 +26,13 @@ export default async function handler(req: Request, context: Context) {
     return context.next();
   }
 
+  // Pass through static assets — never rewrite these
+  const STATIC_EXTENSIONS = /\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|map|json)$/i;
+  if (url.pathname.startsWith('/assets/') || STATIC_EXTENSIONS.test(url.pathname)) {
+    console.log(`[custom-domain] static asset ${url.pathname} — passing through`);
+    return context.next();
+  }
+
   // Read env vars — use Netlify.env (edge runtime) with Deno.env as fallback
   // @ts-ignore — Netlify global is injected at runtime
   const netlifyEnv = typeof Netlify !== 'undefined' ? Netlify.env : null;
