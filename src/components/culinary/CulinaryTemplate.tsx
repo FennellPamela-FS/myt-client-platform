@@ -301,7 +301,7 @@ export default function CulinaryTemplate({
               Private Events
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-              {content.cta_section_headline || 'Let's Plan Something Extraordinary'}
+              {content.cta_section_headline || "Let's Plan Something Extraordinary"}
             </h2>
             <p className="text-gray-500 mt-4 max-w-lg mx-auto leading-relaxed">
               {content.cta_section_body || `Every event is a one-of-a-kind experience. Tell us about your vision and we'll be in touch within 24 hours.`}
