@@ -2,6 +2,27 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Mail, Sparkles } from 'lucide-react';
 
+// Single permanent callback URL — all magic links route through the platform.
+// Custom domains pass a `returnTo` query param so tokens can be relayed back.
+const PLATFORM_CALLBACK = 'https://myt-client-platform.netlify.app/admin/callback';
+
+function buildCallbackUrl(): string {
+  const hostname = window.location.hostname;
+  const isCustomDomain =
+    hostname !== 'localhost' &&
+    hostname !== '127.0.0.1' &&
+    !hostname.endsWith('.netlify.app');
+
+  if (isCustomDomain) {
+    // Relay: after auth on the platform, tokens are forwarded back here
+    const returnTo = encodeURIComponent(`${window.location.origin}/admin/callback`);
+    return `${PLATFORM_CALLBACK}?returnTo=${returnTo}`;
+  }
+
+  // On localhost or the platform itself, use the current origin directly
+  return `${window.location.origin}/admin/callback`;
+}
+
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
@@ -18,9 +39,7 @@ export default function AdminLogin() {
     setLoading(true);
     const { error: authError } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
-      options: {
-        emailRedirectTo: `${window.location.origin}/admin/callback`,
-      },
+      options: { emailRedirectTo: buildCallbackUrl() },
     });
     setLoading(false);
     if (authError) {

@@ -29,6 +29,18 @@ function CustomDomainApp() {
   const [slug, setSlug] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
 
+  // Fast path: render the auth callback immediately — tokens in the URL hash
+  // must be processed right away, before the slug lookup completes.
+  if (window.location.pathname === '/admin/callback') {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/admin/callback" element={<AdminCallback />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
+
   useEffect(() => {
     supabase
       .from('client_sites_saas')
@@ -71,12 +83,12 @@ function CustomDomainApp() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"               element={<SitePage   slug={slug!} />} />
+        <Route path="/"               element={<SitePage    slug={slug!} />} />
         <Route path="/admin"          element={<AdminPortal slug={slug!} />} />
         <Route path="/admin/login"    element={<AdminLogin />} />
-        <Route path="/admin/callback" element={<AdminCallback customSlug={slug!} />} />
+        <Route path="/admin/callback" element={<AdminCallback />} />
         {/* Catch-all — render the site for any unrecognised path on a custom domain */}
-        <Route path="*"               element={<SitePage   slug={slug!} />} />
+        <Route path="*"               element={<SitePage    slug={slug!} />} />
       </Routes>
     </BrowserRouter>
   );
