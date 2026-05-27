@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Settings, Phone, MapPin, Clock } from 'lucide-react';
 import type { SiteContent, SiteBranding, ThemeSelection, DisplayOptions } from '../../types/database';
-import { DEFAULT_DISPLAY_OPTIONS } from '../../types/database';
+import { DEFAULT_DISPLAY_OPTIONS, CULINARY_CATEGORIES } from '../../types/database';
+import CulinaryTemplate from '../culinary/CulinaryTemplate';
 
 // ─── YouTube helpers ─────────────────────────────────────────────────────────
 
@@ -132,12 +133,27 @@ type Props = {
   branding: SiteBranding;
   businessName: string;
   slug?: string;
+  siteId?: string;
   displayOptions?: DisplayOptions | null;
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function SiteRenderer({ content, branding, businessName, slug, displayOptions }: Props) {
+export default function SiteRenderer({ content, branding, businessName, slug, siteId, displayOptions }: Props) {
+  // ── Culinary vertical → dedicated template ──────────────────────────────────
+  if (siteId && CULINARY_CATEGORIES.has(content.industry_category)) {
+    return (
+      <CulinaryTemplate
+        content={content}
+        branding={branding}
+        businessName={businessName}
+        slug={slug ?? ''}
+        siteId={siteId}
+        displayOptions={displayOptions}
+      />
+    );
+  }
+
   const tc = THEME_CONFIGS[branding.theme];
   const isLuxury = branding.theme === 'luxury';
   const opts = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };

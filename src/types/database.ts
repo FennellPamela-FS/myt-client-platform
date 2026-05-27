@@ -126,6 +126,42 @@ export function resolveBranding(site: ClientSite): SiteBranding {
   };
 }
 
+// ─── Culinary feature types ───────────────────────────────────────────────────
+
+export type EventInquiry = {
+  id: string;
+  site_id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  event_date: string | null;
+  event_type: string | null;
+  guest_count: number | null;
+  estimated_budget: string | null;
+  dietary_restrictions: string[];
+  vision_notes: string | null;
+  status: 'new' | 'contacted' | 'booked' | 'declined';
+  created_at: string;
+};
+
+export type MenuItem = {
+  id: string;
+  site_id: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  category: string | null;
+  image_url: string | null;
+  is_available: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
+export const CULINARY_CATEGORIES = new Set([
+  'private_chef', 'catering', 'food_truck', 'farm_to_table',
+  'culinary', 'chef', 'caterer', 'food_and_beverage',
+]);
+
 export type Database = {
   public: {
     Tables: {

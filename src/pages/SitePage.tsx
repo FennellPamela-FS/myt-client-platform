@@ -65,6 +65,7 @@ export default function SitePage({ slug: slugProp }: SitePageProps) {
         branding={branding}
         businessName={site.business_name}
         slug={slug!}
+        siteId={site.id}
         displayOptions={site.display_options}
       />
     </div>
