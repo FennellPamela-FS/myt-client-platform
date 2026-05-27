@@ -51,6 +51,7 @@ export type DisplayOptions = {
   show_contact_form: boolean;
   show_nav_logo: boolean;
   show_nav_name: boolean;
+  nav_show_tagline: boolean;   // show brand_tagline beneath logo in the nav header
   show_footer_logo: boolean;
   show_footer_name: boolean;
   use_booking_cta: boolean;
@@ -65,6 +66,7 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   show_contact_form: true,
   show_nav_logo: true,
   show_nav_name: true,
+  nav_show_tagline: false,
   show_footer_logo: true,
   show_footer_name: true,
   use_booking_cta: false,

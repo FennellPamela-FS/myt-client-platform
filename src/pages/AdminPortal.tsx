@@ -358,6 +358,40 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                 </div>
 
+                {/* Navigation display — only shown when a logo is uploaded */}
+                {logoUrl && (
+                  <div className="card space-y-1">
+                    <h3 className="font-medium text-sm mb-2">Navigation Display</h3>
+                    <p className="text-xs text-muted-foreground mb-3">Controls what appears beside your logo in the site header</p>
+                    {([
+                      {
+                        key: 'show_nav_name' as const,
+                        label: 'Show business name',
+                        hint: 'Display your business name alongside the logo',
+                      },
+                      {
+                        key: 'nav_show_tagline' as const,
+                        label: 'Show tagline below logo',
+                        hint: content?.brand_tagline
+                          ? `"${content.brand_tagline}"`
+                          : 'Set your tagline in SEO & Brand',
+                      },
+                    ]).map(({ key, label, hint }) => (
+                      <button
+                        key={key}
+                        onClick={() => { setDisplayOptions(prev => ({ ...prev, [key]: !prev[key] })); setSaved(false); }}
+                        className="w-full flex items-center justify-between py-2.5 text-sm border-t first:border-t-0"
+                      >
+                        <div className="text-left">
+                          <p className="font-medium">{label}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
+                        </div>
+                        <Toggle on={!!displayOptions[key]} color={primaryColor} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {/* Color pickers */}
                 <div className="card space-y-4">
                   <h3 className="font-medium text-sm">Brand Colors</h3>

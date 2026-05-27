@@ -166,6 +166,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
       <header className={`sticky top-0 z-50 ${isLuxury ? 'bg-neutral-950 border-b border-neutral-800' : 'bg-white border-b border-gray-100 shadow-sm'}`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {/* Icon or logo */}
             {opts.show_nav_logo && (
               branding.logoUrl ? (
                 <img src={branding.logoUrl} alt={businessName} className="h-10 w-auto object-contain" />
@@ -176,10 +177,20 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
                 </div>
               )
             )}
-            {opts.show_nav_name && (
-              <span className={`font-semibold text-lg ${isLuxury ? 'text-neutral-100 tracking-widest uppercase text-sm' : ''}`}>
-                {businessName}
-              </span>
+            {/* Text block: name and/or tagline (tagline only visible alongside a logo) */}
+            {(opts.show_nav_name || (branding.logoUrl && opts.nav_show_tagline)) && (
+              <div className="flex flex-col leading-tight">
+                {opts.show_nav_name && (
+                  <span className={`font-semibold ${isLuxury ? 'text-neutral-100 tracking-widest uppercase text-sm' : 'text-lg'}`}>
+                    {businessName}
+                  </span>
+                )}
+                {branding.logoUrl && opts.nav_show_tagline && content.brand_tagline && (
+                  <span className={`text-xs ${isLuxury ? 'text-neutral-400' : 'text-gray-500'}`}>
+                    {content.brand_tagline}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
