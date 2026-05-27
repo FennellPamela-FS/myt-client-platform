@@ -704,7 +704,9 @@ export default function SiteRenderer({ content, branding, businessName, slug, di
       {/* ── Settings FAB ────────────────────────────────────────────────── */}
       {slug && (
         <a
-          href={`/site/${slug}/admin`}
+          // On a custom domain the path starts at "/" — use /admin.
+          // On the platform (myt-client-platform.netlify.app) path is /site/:slug — use full path.
+          href={window.location.pathname.startsWith('/site/') ? `/site/${slug}/admin` : '/admin'}
           className="fixed bottom-6 right-6 w-11 h-11 rounded-full shadow-lg flex items-center justify-center text-white transition-opacity hover:opacity-90 z-50"
           style={{ backgroundColor: branding.primaryColor }}
           title="Manage site"
