@@ -1,25 +1,13 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { supabase } from './lib/supabase';
+import { isPlatformHost } from './lib/hosts';
 import SitePage from './pages/SitePage';
 import AdminLogin from './pages/AdminLogin';
 import AdminPortal from './pages/AdminPortal';
 import AdminCallback from './pages/AdminCallback';
 import RootPage from './pages/RootPage';
 import NotFound from './pages/NotFound';
-
-// Hostnames that belong to the platform itself — use standard path-based routing
-const PLATFORM_HOSTS = new Set([
-  'myt-client-platform.netlify.app',
-  'mytcreative.app',
-  'www.mytcreative.app',
-  'localhost',
-  '127.0.0.1',
-]);
-
-function isPlatformHost(hostname: string): boolean {
-  return PLATFORM_HOSTS.has(hostname) || hostname.endsWith('.netlify.app');
-}
 
 // ── Custom-domain: auth callback fast path ────────────────────────────────────
 // Rendered immediately when the path is /admin/callback so that Supabase can

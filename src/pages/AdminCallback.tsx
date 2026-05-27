@@ -1,12 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { isPlatformHost } from '../lib/hosts';
 import type { Session } from '@supabase/supabase-js';
-
-function isCustomDomain(): boolean {
-  const h = window.location.hostname;
-  return h !== 'localhost' && h !== '127.0.0.1' && !h.endsWith('.netlify.app');
-}
 
 // Handles the redirect after a Supabase magic link is clicked.
 //
@@ -16,20 +12,21 @@ function isCustomDomain(): boolean {
 //     custom domain's /admin/callback in the URL hash so Supabase there can
 //     establish its own session.
 //
-//  B) Custom domain              — tokens arrived (relayed from platform).
-//     Use window.location.replace('/admin') so we escape the fast-path
-//     mini-BrowserRouter and trigger a clean full-page load at /admin where
-//     the main CustomDomainSiteApp can render correctly.
+//  B) Client custom domain       — tokens arrived (relayed from platform).
+//     Use window.location.replace('/admin') to escape the fast-path
+//     mini-BrowserRouter and trigger a clean full-page load at /admin.
 //
-//  C) Platform, no returnTo      — direct platform login. Look up slug by
-//     email, navigate to /site/:slug/admin.
+//  C) Platform host, no returnTo — direct platform login (incl. mytcreative.app).
+//     Look up the user's site by email. If the site has a custom_domain,
+//     redirect straight to https://<custom_domain>/admin. Otherwise fall back
+//     to the internal /site/:slug/admin path.
 
 export default function AdminCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const returnTo    = new URLSearchParams(window.location.search).get('returnTo');
-    const onCustom    = isCustomDomain();
+    const returnTo = new URLSearchParams(window.location.search).get('returnTo');
+    const onCustom = !isPlatformHost(window.location.hostname);
 
     async function handleSession(session: Session) {
       // ── Mode A: relay tokens to custom domain ──────────────────────────────
@@ -45,22 +42,29 @@ export default function AdminCallback() {
         return;
       }
 
-      // ── Mode B: custom domain — full-page navigate so we exit the mini-router
+      // ── Mode B: client custom domain — exit mini-router via full-page load ─
       if (onCustom) {
         window.location.replace('/admin');
         return;
       }
 
-      // ── Mode C: direct platform login ──────────────────────────────────────
+      // ── Mode C: platform host login (myt-client-platform.netlify.app or
+      //           mytcreative.app) — find the user's site and send them to
+      //           their custom domain admin if one is configured. ─────────────
       const { data } = await supabase
         .from('client_sites_saas')
-        .select('slug')
+        .select('slug, custom_domain')
         .eq('email', session.user.email ?? '')
         .single();
 
-      const row = data as unknown as { slug: string } | null;
+      const row = data as unknown as { slug: string; custom_domain: string | null } | null;
       if (row?.slug) {
-        navigate(`/site/${row.slug}/admin`, { replace: true });
+        if (row.custom_domain) {
+          // Send them directly to their white-labeled admin
+          window.location.href = `https://${row.custom_domain}/admin`;
+        } else {
+          navigate(`/site/${row.slug}/admin`, { replace: true });
+        }
       } else {
         navigate('/admin/login?error=no_site', { replace: true });
       }

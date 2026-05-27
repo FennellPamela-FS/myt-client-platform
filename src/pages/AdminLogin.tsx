@@ -1,26 +1,24 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { isPlatformHost } from '../lib/hosts';
 import { Mail, Sparkles } from 'lucide-react';
 
 // Single permanent callback URL — all magic links route through the platform.
-// Custom domains pass a `returnTo` query param so tokens can be relayed back.
+// Client custom domains pass a `returnTo` param so tokens can be relayed back.
 const PLATFORM_CALLBACK = 'https://myt-client-platform.netlify.app/admin/callback';
 
 function buildCallbackUrl(): string {
   const hostname = window.location.hostname;
-  const isCustomDomain =
-    hostname !== 'localhost' &&
-    hostname !== '127.0.0.1' &&
-    !hostname.endsWith('.netlify.app');
 
-  if (isCustomDomain) {
-    // Relay: after auth on the platform, tokens are forwarded back here
-    const returnTo = encodeURIComponent(`${window.location.origin}/admin/callback`);
-    return `${PLATFORM_CALLBACK}?returnTo=${returnTo}`;
+  if (isPlatformHost(hostname)) {
+    // Platform host (incl. mytcreative.app) — direct callback, Mode C will
+    // look up the user's site and redirect to its custom domain.
+    return `${window.location.origin}/admin/callback`;
   }
 
-  // On localhost or the platform itself, use the current origin directly
-  return `${window.location.origin}/admin/callback`;
+  // Client custom domain — relay tokens back here via returnTo
+  const returnTo = encodeURIComponent(`${window.location.origin}/admin/callback`);
+  return `${PLATFORM_CALLBACK}?returnTo=${returnTo}`;
 }
 
 export default function AdminLogin() {
