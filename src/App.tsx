@@ -11,6 +11,8 @@ import NotFound from './pages/NotFound';
 // Hostnames that belong to the platform itself — use standard path-based routing
 const PLATFORM_HOSTS = new Set([
   'myt-client-platform.netlify.app',
+  'mytcreative.app',
+  'www.mytcreative.app',
   'localhost',
   '127.0.0.1',
 ]);
