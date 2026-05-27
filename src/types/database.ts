@@ -170,6 +170,16 @@ export type Database = {
         Insert: Omit<ClientSite, 'id' | 'created_at'>;
         Update: Partial<Omit<ClientSite, 'id' | 'created_at'>>;
       };
+      event_inquiries: {
+        Row: EventInquiry;
+        Insert: Omit<EventInquiry, 'id' | 'created_at' | 'status'>;
+        Update: Partial<Omit<EventInquiry, 'id' | 'created_at'>>;
+      };
+      menu_items: {
+        Row: MenuItem;
+        Insert: Omit<MenuItem, 'id' | 'created_at'>;
+        Update: Partial<Omit<MenuItem, 'id' | 'created_at'>>;
+      };
     };
   };
 };
