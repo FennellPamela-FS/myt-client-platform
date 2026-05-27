@@ -771,7 +771,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   <div className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
                 <span className="flex-1 text-center bg-white rounded px-3 py-0.5 border text-gray-500">
-                  {window.location.origin}/site/{slug}
+                  {slugProp ? window.location.origin : `${window.location.origin}/site/${slug}`}
                 </span>
               </div>
               <div className="flex-1 overflow-y-auto">
@@ -780,6 +780,8 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                     content={liveContent}
                     branding={liveBranding}
                     businessName={site.business_name}
+                    slug={slug}
+                    siteId={site.id}
                     displayOptions={displayOptions}
                   />
                 </div>
