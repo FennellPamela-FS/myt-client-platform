@@ -278,7 +278,13 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
             </div>
             {/* Right: image or video */}
             <div
-              className={`relative overflow-hidden ${tc.radiusClass} shadow-2xl ${heroVideo ? 'aspect-[16/9] w-full' : 'h-[480px]'}`}
+              className={`relative overflow-hidden ${tc.radiusClass} shadow-2xl ${
+                heroVideo
+                  ? 'aspect-[16/9] w-full'
+                  : opts.hero_image_ratio === '16:9'
+                  ? 'aspect-[16/9] w-full'
+                  : 'h-[480px]'
+              }`}
               style={{ background: `linear-gradient(135deg, ${branding.primaryColor}33, ${branding.accentColor}55)` }}
             >
               {heroVideo

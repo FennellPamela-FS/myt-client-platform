@@ -536,6 +536,32 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                       </div>
                     )}
 
+                    {/* Image ratio — only shown when media type is image */}
+                    {displayOptions.hero_media_type === 'image' && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-700 mb-2">Image ratio</p>
+                        <div className="flex rounded-lg border border-gray-200 p-1 gap-1">
+                          {([
+                            { value: 'default', label: 'Default', hint: '~4:3 portrait' },
+                            { value: '16:9',    label: '16:9',    hint: 'Widescreen'    },
+                          ] as { value: 'default' | '16:9'; label: string; hint: string }[]).map(opt => (
+                            <button
+                              key={opt.value}
+                              title={opt.hint}
+                              onClick={() => { setDisplayOptions(prev => ({ ...prev, hero_image_ratio: opt.value })); setSaved(false); }}
+                              className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                (displayOptions.hero_image_ratio ?? 'default') === opt.value
+                                  ? 'bg-gray-900 text-white'
+                                  : 'text-gray-500 hover:text-gray-700'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Video upload + URL */}
                     {displayOptions.hero_media_type === 'video' && (
                       <div className="space-y-3">

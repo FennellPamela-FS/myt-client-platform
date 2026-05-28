@@ -56,6 +56,7 @@ export type DisplayOptions = {
   show_footer_name: boolean;
   use_booking_cta: boolean;
   hero_media_type: 'image' | 'video';
+  hero_image_ratio: 'default' | '16:9';  // default ≈ fixed 480px height; 16:9 = responsive widescreen
   hero_bg_mirror: boolean;
 };
 
@@ -71,6 +72,7 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   show_footer_name: true,
   use_booking_cta: false,
   hero_media_type: 'image',
+  hero_image_ratio: 'default',
   hero_bg_mirror: false,
 };
 
