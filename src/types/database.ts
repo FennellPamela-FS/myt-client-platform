@@ -43,6 +43,11 @@ export type SiteContent = {
   business_email: string;
   industry_category: string;
   theme_selection: string;
+  // Social media links (shown in footer; client-filled)
+  social_instagram: string;
+  social_facebook: string;
+  social_twitter: string;
+  social_linkedin: string;
   // Innovative theme stat counters (editable in Admin → About section)
   stat_1_value: string;
   stat_1_label: string;

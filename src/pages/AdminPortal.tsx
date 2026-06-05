@@ -38,7 +38,7 @@ const NAV_SECTIONS = [
   { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url'] },
   { id: 'gallery', label: 'Photo Gallery', icon: Image, fields: [] },
   { id: 'contact_info', label: 'Contact Info', icon: Phone, fields: ['business_phone', 'business_address', 'business_hours', 'contact_form_title', 'contact_form_subtitle', 'contact_form_button_text'] },
-  { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email'] },
+  { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email', 'social_instagram', 'social_facebook', 'social_twitter', 'social_linkedin'] },
   { id: 'domain', label: 'Custom Domain', icon: Globe, fields: [] },
 ];
 
@@ -264,7 +264,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen overflow-hidden bg-gray-50 flex flex-col">
 
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
       <header className="bg-white border-b z-20 sticky top-0">
@@ -308,10 +308,10 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
 
         {/* ── Sidebar nav ─────────────────────────────────────────────── */}
         <aside className={`
-          fixed md:static inset-y-0 left-0 z-10 bg-white border-r w-56 flex flex-col
+          fixed md:sticky md:top-0 md:h-full inset-y-0 left-0 z-10 bg-white border-r w-56 flex flex-col
           transition-transform duration-200
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          top-[57px] md:top-0
+          top-[57px]
         `}>
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
             {NAV_SECTIONS.map(section => {

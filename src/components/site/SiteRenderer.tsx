@@ -281,7 +281,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                 style={{ color: branding.primaryColor }}>
                 {content.brand_tagline}
               </p>
-              <h1 className={`text-4xl md:text-6xl mb-6 leading-tight ${tc.headingClass} text-neutral-100`}>
+              <h1 className={`text-4xl md:text-6xl mb-6 leading-tight ${tc.headingClass} ${textColor}`}>
                 {content.hero_headline}
               </h1>
               <p className={`text-lg mb-4 font-bold tracking-wide uppercase`}
@@ -575,7 +575,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: `linear-gradient(90deg, transparent, ${branding.primaryColor}, ${branding.accentColor}, transparent)` }} />
           <div className="max-w-7xl mx-auto">
-            <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} text-neutral-100`}>
+            <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
               Why Choose Us
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
@@ -918,32 +918,42 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               </ul>
             </div>
 
-            {/* Contact info */}
+            {/* Connect — email, phone, social links */}
             <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Contact Us</h4>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-sm text-gray-400">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                  <a href={`mailto:${content.business_email}`} className="hover:text-white transition-colors">{content.business_email}</a>
-                </li>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Connect</h4>
+              <ul className="space-y-3 mb-5">
+                {content.business_email && (
+                  <li className="flex items-center gap-2 text-sm text-gray-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <a href={`mailto:${content.business_email}`} className="hover:text-white transition-colors">{content.business_email}</a>
+                  </li>
+                )}
                 {opts.show_phone && content.business_phone && (
                   <li className="flex items-center gap-2 text-sm text-gray-400">
                     <Phone size={14} /><span>{content.business_phone}</span>
                   </li>
                 )}
-                {opts.show_address && content.business_address && (
-                  <li className="flex items-start gap-2 text-sm text-gray-400">
-                    <MapPin size={14} className="mt-0.5 flex-shrink-0" /><span>{content.business_address}</span>
-                  </li>
-                )}
-                {opts.show_hours && content.business_hours && (
-                  <li className="flex items-center gap-2 text-sm text-gray-400">
-                    <Clock size={14} /><span>{content.business_hours}</span>
-                  </li>
-                )}
               </ul>
+              {/* Social links */}
+              {(content.social_instagram || content.social_facebook || content.social_twitter || content.social_linkedin) && (
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { url: content.social_instagram, label: 'Instagram' },
+                    { url: content.social_facebook,  label: 'Facebook'  },
+                    { url: content.social_twitter,   label: 'Twitter'   },
+                    { url: content.social_linkedin,  label: 'LinkedIn'  },
+                  ].filter(s => s.url).map(({ url, label }) => (
+                    <a key={label} href={url.startsWith('http') ? url : `https://${url}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-gray-400 hover:text-white transition-colors border border-gray-700 hover:border-gray-500 rounded px-2.5 py-1"
+                      style={{ ['--hover-color' as string]: branding.primaryColor }}>
+                      {label}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
