@@ -174,9 +174,47 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
   // creative + luxury + innovative all use dark altSectionBg
   const isDarkAltBg  = isDarkTheme || isCreative;
   const opts = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };
-  const [formSent, setFormSent] = useState(false);
+  const [formSent, setFormSent]       = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [formError, setFormError]     = useState('');
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', service: '', message: '' });
   const [bookingOpen, setBookingOpen] = useState(false);
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!siteId) return;
+    setFormLoading(true);
+    setFormError('');
+    const [firstName, ...rest] = formData.name.trim().split(' ');
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/site-contact-form`,
+        {
+          method:  'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            Authorization:   `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            siteId,
+            firstName: firstName || '',
+            lastName:  rest.join(' ') || '',
+            email:     formData.email.trim().toLowerCase(),
+            phone:     formData.phone.trim(),
+            service:   formData.service,
+            message:   formData.message.trim(),
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      setFormSent(true);
+    } catch (err) {
+      setFormError('Something went wrong. Please try again or contact us directly.');
+      console.error('[contact-form]', err);
+    } finally {
+      setFormLoading(false);
+    }
+  };
 
   const heroImg = branding.heroImageUrl || INDUSTRY_IMAGES[content.industry_category] || INDUSTRY_IMAGES.other;
   const heroVideo = opts.hero_media_type === 'video' ? branding.heroVideoUrl : null;
@@ -756,14 +794,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                     </p>
                   </div>
                 ) : (
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      window.location.href = `mailto:${content.business_email}?subject=New Inquiry from ${formData.name}&body=Name: ${formData.name}%0AEmail: ${formData.email}%0APhone: ${formData.phone}%0AService: ${formData.service}%0AMessage: ${formData.message}`;
-                      setFormSent(true);
-                    }}
-                    className="space-y-4"
-                  >
+                  <form onSubmit={handleContactSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className={`block text-sm font-medium mb-1.5 ${isDarkTheme ? 'text-neutral-300' : 'text-gray-700'}`}>First Name *</label>
@@ -807,10 +838,14 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                         className={`w-full px-3 py-2.5 rounded-md border text-sm resize-none focus:outline-none focus:ring-2 ${isDarkTheme ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
                         placeholder="Tell us about your project…" />
                     </div>
+                    {formError && (
+                      <p className="text-sm text-red-500 bg-red-50 rounded-md px-3 py-2">{formError}</p>
+                    )}
                     <button type="submit"
-                      className={`w-full py-3 text-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+                      disabled={formLoading}
+                      className={`w-full py-3 text-white font-semibold transition-opacity hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed ${tc.btnPrimaryClass}`}
                       style={{ backgroundColor: branding.primaryColor }}>
-                      {content.contact_form_button_text || 'Get Free Estimate'}
+                      {formLoading ? 'Sending…' : (content.contact_form_button_text || 'Get Free Estimate')}
                     </button>
                   </form>
                 )}
