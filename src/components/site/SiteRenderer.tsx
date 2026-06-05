@@ -248,7 +248,63 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       </header>
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
-      {tc.heroLayout === 'split' ? (
+      {isInnovative ? (
+        /* ── Innovative hero: graphic LEFT, headline RIGHT, radial glow ── */
+        <section className="min-h-[85vh] flex items-center relative overflow-hidden bg-slate-950">
+          {/* Subtle color depth layer */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: `linear-gradient(135deg, ${branding.primaryColor}0a 0%, transparent 45%, ${branding.accentColor}08 100%)` }} />
+          {/* Radial glow behind graphic */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: `radial-gradient(ellipse at 28% 50%, ${branding.primaryColor}22 0%, transparent 55%)` }} />
+
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center w-full">
+            {/* Left: image/graphic */}
+            <div className={`relative overflow-hidden ${tc.radiusClass} shadow-2xl ${
+              opts.hero_image_ratio === '16:9' ? 'aspect-[16/9] w-full' : 'h-[480px]'
+            }`}
+              style={{ background: `linear-gradient(135deg, ${branding.primaryColor}22, ${branding.accentColor}33)` }}>
+              {heroVideo
+                ? <HeroMedia src={heroVideo} className="w-full h-full object-cover" />
+                : <img src={heroImg} alt={businessName} className="w-full h-full object-cover" />}
+              {/* Color tint overlay */}
+              <div className="absolute inset-0 opacity-20 mix-blend-color"
+                style={{ background: `radial-gradient(circle at center, ${branding.primaryColor}, transparent 70%)` }} />
+              {/* Bottom edge accent line */}
+              <div className="absolute bottom-0 left-0 right-0 h-0.5"
+                style={{ background: `linear-gradient(90deg, ${branding.primaryColor}, ${branding.accentColor})` }} />
+            </div>
+
+            {/* Right: copy */}
+            <div>
+              <p className="text-xs font-bold tracking-[0.3em] uppercase mb-4"
+                style={{ color: branding.primaryColor }}>
+                {content.brand_tagline}
+              </p>
+              <h1 className={`text-4xl md:text-6xl mb-6 leading-tight ${tc.headingClass} text-neutral-100`}>
+                {content.hero_headline}
+              </h1>
+              <p className={`text-lg mb-4 font-bold tracking-wide uppercase`}
+                style={{ color: branding.accentColor }}>
+                {content.hero_subheadline}
+              </p>
+              <p className="text-base mb-10 text-neutral-400">{content.hero_value_statement}</p>
+              <div className="flex flex-wrap gap-4">
+                <a href="#contact"
+                  className={`px-8 py-3 text-white text-sm transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+                  style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})` }}>
+                  {content.hero_cta_primary}
+                </a>
+                <a href="#about"
+                  className={`px-8 py-3 text-sm transition-colors ${tc.btnSecondaryClass}`}
+                  style={{ borderColor: branding.primaryColor, color: branding.primaryColor }}>
+                  {content.hero_cta_secondary}
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : tc.heroLayout === 'split' ? (
         <section className={`${tc.sectionBg} min-h-[85vh] flex items-center relative overflow-hidden`}>
           {/* Faint background mirror */}
           {showBgMirror && (
@@ -350,26 +406,82 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       )}
 
       {/* ── About ──────────────────────────────────────────────────────── */}
-      <section id="about" className={`py-24 px-6 ${tc.altSectionBg}`}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className={`text-3xl md:text-4xl mb-6 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
-            {content.about_headline}
-          </h2>
-          <p className={`text-lg mb-6 leading-relaxed ${isDarkAltBg ? 'text-neutral-300' : 'text-gray-600'}`}>
-            {content.about_body}
-          </p>
-          <p className={`text-base italic mb-10 ${isDarkAltBg ? 'text-neutral-400' : 'text-gray-400'}`}>
-            {content.about_mission}
-          </p>
-          <a
-            href="#benefits"
-            className={`inline-flex px-8 py-3 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
-            style={{ backgroundColor: branding.primaryColor }}
-          >
-            {content.about_cta_text}
-          </a>
-        </div>
-      </section>
+      {isInnovative ? (
+        /* ── Innovative about: image | text | stats 3-col ── */
+        <section id="about" className="py-24 px-6 bg-slate-900 relative">
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: `linear-gradient(90deg, transparent, ${branding.primaryColor}, ${branding.accentColor}, transparent)` }} />
+          <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-10 items-start">
+            {/* Col 1: image */}
+            <div className="relative overflow-hidden rounded aspect-video bg-slate-800">
+              {branding.heroImageUrl
+                ? <img src={branding.heroImageUrl} alt={businessName} className="w-full h-full object-cover" />
+                : <div className="w-full h-full flex items-center justify-center text-3xl font-black tracking-widest"
+                    style={{ color: `${branding.primaryColor}60` }}>
+                    {businessName.charAt(0)}
+                  </div>}
+              <div className="absolute bottom-0 left-0 right-0 h-0.5"
+                style={{ background: `linear-gradient(90deg, ${branding.primaryColor}, ${branding.accentColor})` }} />
+            </div>
+            {/* Col 2: text */}
+            <div>
+              <p className="text-xs font-bold tracking-[0.3em] uppercase mb-3"
+                style={{ color: branding.primaryColor }}>{content.about_tagline}</p>
+              <h2 className={`text-2xl md:text-3xl mb-4 ${tc.headingClass} text-neutral-100`}>
+                {content.about_headline}
+              </h2>
+              <p className="text-sm leading-relaxed text-neutral-300 mb-4">{content.about_body}</p>
+              <p className="text-sm italic text-neutral-500 mb-6">{content.about_mission}</p>
+              <a href="#benefits"
+                className={`inline-flex px-6 py-2.5 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+                style={{ backgroundColor: branding.primaryColor }}>
+                {content.about_cta_text}
+              </a>
+            </div>
+            {/* Col 3: stat counters */}
+            {(content.stat_1_value || content.stat_2_value || content.stat_3_value) && (
+              <div className="space-y-8 md:pl-6 md:border-l"
+                style={{ borderColor: `${branding.primaryColor}40` }}>
+                {[
+                  { v: content.stat_1_value, l: content.stat_1_label },
+                  { v: content.stat_2_value, l: content.stat_2_label },
+                  { v: content.stat_3_value, l: content.stat_3_label },
+                ].filter(s => s.v).map((stat, i) => (
+                  <div key={i}>
+                    <p className="text-3xl font-black tracking-tight leading-none"
+                      style={{ color: branding.primaryColor }}>{stat.v}</p>
+                    <p className="text-xs font-bold tracking-[0.2em] uppercase mt-1.5"
+                      style={{ color: branding.accentColor }}>{stat.l}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-px"
+            style={{ background: `linear-gradient(90deg, transparent, ${branding.accentColor}, ${branding.primaryColor}, transparent)` }} />
+        </section>
+      ) : (
+        <section id="about" className={`py-24 px-6 ${tc.altSectionBg}`}>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className={`text-3xl md:text-4xl mb-6 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
+              {content.about_headline}
+            </h2>
+            <p className={`text-lg mb-6 leading-relaxed ${isDarkAltBg ? 'text-neutral-300' : 'text-gray-600'}`}>
+              {content.about_body}
+            </p>
+            <p className={`text-base italic mb-10 ${isDarkAltBg ? 'text-neutral-400' : 'text-gray-400'}`}>
+              {content.about_mission}
+            </p>
+            <a
+              href="#benefits"
+              className={`inline-flex px-8 py-3 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+              style={{ backgroundColor: branding.primaryColor }}
+            >
+              {content.about_cta_text}
+            </a>
+          </div>
+        </section>
+      )}
 
       {/* ── Services ───────────────────────────────────────────────────── */}
       <section id="services" className={`py-24 px-6 ${tc.sectionBg}`}>
@@ -388,14 +500,25 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               const cta = content[`service_${n}_cta` as keyof SiteContent];
               if (!name) return null;
               return (
-                <div key={n} className={`p-6 flex flex-col gap-4 ${tc.cardClass}`}>
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold"
-                    style={{ backgroundColor: branding.primaryColor }}>
+                <div key={n} className={`flex flex-col gap-4 ${tc.cardClass} overflow-hidden`}>
+                  {/* Innovative: gradient top bar */}
+                  {isInnovative && (
+                    <div className="h-0.5 w-full -mt-px"
+                      style={{ background: n % 2 === 1
+                        ? `linear-gradient(90deg, ${branding.primaryColor}, ${branding.accentColor})`
+                        : `linear-gradient(90deg, ${branding.accentColor}, ${branding.primaryColor})` }} />
+                  )}
+                  <div className="p-6 flex flex-col gap-4 flex-1">
+                  <div className={`w-10 h-10 flex items-center justify-center text-sm font-black ${isInnovative ? 'rounded' : 'rounded-lg'} text-white`}
+                    style={{ background: isInnovative
+                      ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})`
+                      : branding.primaryColor }}>
                     {n}
                   </div>
-                  <h3 className={`font-semibold text-lg ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>{name}</h3>
+                  <h3 className={`font-semibold text-lg ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}
+                    style={isInnovative ? { color: branding.primaryColor } : undefined}>{name}</h3>
                   <p className={`text-sm flex-1 ${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>{desc}</p>
-                  <p className="text-xs font-semibold" style={{ color: branding.primaryColor }}>{benefit}</p>
+                  <p className="text-xs font-semibold" style={{ color: isInnovative ? branding.accentColor : branding.primaryColor }}>{benefit}</p>
                   <a
                     href={`mailto:${content.business_email}`}
                     className={`text-xs transition-colors hover:opacity-80 ${tc.btnSecondaryClass} px-4 py-2 text-center`}
@@ -403,6 +526,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                   >
                     {cta}
                   </a>
+                  </div>{/* close inner p-6 div for innovative */}
                 </div>
               );
             })}
@@ -443,29 +567,62 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       )}
 
       {/* ── Benefits ───────────────────────────────────────────────────── */}
-      <section id="benefits" className={`py-24 px-6 ${tc.altSectionBg}`}>
-        <div className="max-w-7xl mx-auto">
-          <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
-            Why Choose Us
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map(n => (
-              <div key={n} className="text-center">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 font-bold"
-                  style={{ backgroundColor: `${branding.primaryColor}33`, color: branding.primaryColor }}>
-                  0{n}
-                </div>
-                <h3 className={`font-semibold mb-2 ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
-                  {content[`benefit_${n}_title` as keyof SiteContent]}
-                </h3>
-                <p className={`text-sm ${isDarkAltBg ? 'text-neutral-400' : 'text-gray-500'}`}>
-                  {content[`benefit_${n}_description` as keyof SiteContent]}
-                </p>
-              </div>
-            ))}
+      {isInnovative ? (
+        /* ── Innovative benefits: numbered grid with alternating accent colors ── */
+        <section id="benefits" className="py-24 px-6 bg-slate-950 relative">
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: `linear-gradient(90deg, transparent, ${branding.primaryColor}, ${branding.accentColor}, transparent)` }} />
+          <div className="max-w-7xl mx-auto">
+            <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} text-neutral-100`}>
+              Why Choose Us
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {[1, 2, 3, 4].map(n => {
+                const accentCol = n % 2 === 1 ? branding.primaryColor : branding.accentColor;
+                return (
+                  <div key={n} className="flex items-start gap-5 p-6 rounded border bg-slate-900"
+                    style={{ borderColor: `${accentCol}30` }}>
+                    <div className="text-3xl font-black flex-shrink-0 leading-none mt-0.5"
+                      style={{ color: accentCol }}>0{n}</div>
+                    <div>
+                      <h3 className={`font-black tracking-wide uppercase text-sm mb-2 text-neutral-100`}>
+                        {content[`benefit_${n}_title` as keyof SiteContent]}
+                      </h3>
+                      <p className="text-sm text-neutral-400">
+                        {content[`benefit_${n}_description` as keyof SiteContent]}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section id="benefits" className={`py-24 px-6 ${tc.altSectionBg}`}>
+          <div className="max-w-7xl mx-auto">
+            <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
+              Why Choose Us
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[1, 2, 3, 4].map(n => (
+                <div key={n} className="text-center">
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 font-bold"
+                    style={{ backgroundColor: `${branding.primaryColor}33`, color: branding.primaryColor }}>
+                    0{n}
+                  </div>
+                  <h3 className={`font-semibold mb-2 ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
+                    {content[`benefit_${n}_title` as keyof SiteContent]}
+                  </h3>
+                  <p className={`text-sm ${isDarkAltBg ? 'text-neutral-400' : 'text-gray-500'}`}>
+                    {content[`benefit_${n}_description` as keyof SiteContent]}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Testimonials ───────────────────────────────────────────────── */}
       <section className={`py-24 px-6 ${tc.sectionBg}`}>
@@ -495,35 +652,77 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       </section>
 
       {/* ── CTA banner ─────────────────────────────────────────────────── */}
-      <section
-        className="py-24 px-6 text-white text-center"
-        style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.secondaryColor})` }}
-      >
-        <div className="max-w-3xl mx-auto">
-          <h2 className={`text-3xl md:text-5xl mb-6 ${tc.headingClass}`}>
-            {content.cta_section_headline}
-          </h2>
-          <p className="text-lg mb-10 opacity-90">{content.cta_section_body}</p>
-          {opts.use_booking_cta && content.booking_url ? (
-            <button
-              onClick={() => setBookingOpen(true)}
-              className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
-              style={{ color: branding.primaryColor }}
-            >
-              {content.cta_button_text}
-            </button>
-          ) : (
-            <a
-              href="#contact"
-              className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
-              style={{ color: branding.primaryColor }}
-            >
-              {content.cta_button_text}
-            </a>
+      {isInnovative ? (
+        /* ── Innovative CTA: hero image overlay + outline button ── */
+        <section className="py-28 px-6 text-white text-center relative overflow-hidden bg-slate-950">
+          {heroImg && (
+            <div className="absolute inset-0 bg-cover bg-center opacity-15"
+              style={{ backgroundImage: `url(${heroImg})` }} />
           )}
-          <p className="mt-6 text-sm opacity-70">{content.cta_urgency_line}</p>
-        </div>
-      </section>
+          <div className="absolute inset-0"
+            style={{ background: `linear-gradient(135deg, ${branding.primaryColor}55 0%, ${branding.accentColor}40 100%)` }} />
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: `linear-gradient(90deg, transparent, ${branding.primaryColor}, ${branding.accentColor}, transparent)` }} />
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-4"
+              style={{ color: branding.primaryColor }}>{content.cta_urgency_line}</p>
+            <h2 className={`text-3xl md:text-5xl mb-6 ${tc.headingClass} text-neutral-100`}>
+              {content.cta_section_headline}
+            </h2>
+            <p className="text-lg mb-10 text-neutral-300">{content.cta_section_body}</p>
+            {opts.use_booking_cta && content.booking_url ? (
+              <button onClick={() => setBookingOpen(true)}
+                className={`inline-flex px-12 py-4 border-2 font-bold tracking-widest uppercase text-sm rounded transition-all hover:text-slate-950`}
+                style={{ borderColor: branding.primaryColor, color: branding.primaryColor,
+                  ['--hover-bg' as string]: branding.primaryColor }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = branding.primaryColor; (e.currentTarget as HTMLElement).style.color = '#0f172a'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = branding.primaryColor; }}>
+                {content.cta_button_text}
+              </button>
+            ) : (
+              <a href="#contact"
+                className={`inline-flex px-12 py-4 border-2 font-bold tracking-widest uppercase text-sm rounded transition-all`}
+                style={{ borderColor: branding.primaryColor, color: branding.primaryColor }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = branding.primaryColor; (e.currentTarget as HTMLElement).style.color = '#0f172a'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = branding.primaryColor; }}>
+                {content.cta_button_text}
+              </a>
+            )}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-px"
+            style={{ background: `linear-gradient(90deg, transparent, ${branding.accentColor}, ${branding.primaryColor}, transparent)` }} />
+        </section>
+      ) : (
+        <section
+          className="py-24 px-6 text-white text-center"
+          style={{ background: `linear-gradient(135deg, ${branding.primaryColor}, ${branding.secondaryColor})` }}
+        >
+          <div className="max-w-3xl mx-auto">
+            <h2 className={`text-3xl md:text-5xl mb-6 ${tc.headingClass}`}>
+              {content.cta_section_headline}
+            </h2>
+            <p className="text-lg mb-10 opacity-90">{content.cta_section_body}</p>
+            {opts.use_booking_cta && content.booking_url ? (
+              <button
+                onClick={() => setBookingOpen(true)}
+                className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+                style={{ color: branding.primaryColor }}
+              >
+                {content.cta_button_text}
+              </button>
+            ) : (
+              <a
+                href="#contact"
+                className={`inline-flex px-12 py-4 bg-white font-semibold transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+                style={{ color: branding.primaryColor }}
+              >
+                {content.cta_button_text}
+              </a>
+            )}
+            <p className="mt-6 text-sm opacity-70">{content.cta_urgency_line}</p>
+          </div>
+        </section>
+      )}
 
       {/* ── Contact form ───────────────────────────────────────────────── */}
       {opts.show_contact_form && (
@@ -672,7 +871,12 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       )}
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
-      <footer className={`${isDarkTheme ? `${tc.sectionBg} border-t ${isInnovative ? 'border-slate-800' : 'border-neutral-800'}` : 'bg-gray-900'} text-white`}>
+      <footer className={`${isDarkTheme ? tc.sectionBg : 'bg-gray-900'} text-white relative`}>
+        {/* Innovative: gradient top border */}
+        {isInnovative && (
+          <div className="absolute top-0 left-0 right-0 h-0.5"
+            style={{ background: `linear-gradient(90deg, ${branding.primaryColor}, ${branding.accentColor}, ${branding.primaryColor})` }} />
+        )}
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-3 gap-12">
             {/* Brand */}

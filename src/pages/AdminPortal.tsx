@@ -31,7 +31,7 @@ function Toggle({ on, color }: { on: boolean; color: string }) {
 const NAV_SECTIONS = [
   { id: 'branding', label: 'Branding', icon: Palette, fields: [] },
   { id: 'hero', label: 'Hero Section', icon: Layout, fields: ['hero_headline', 'hero_subheadline', 'hero_cta_primary', 'hero_cta_secondary', 'hero_value_statement'] },
-  { id: 'about', label: 'About', icon: Type, fields: ['about_headline', 'about_body', 'about_mission', 'about_cta_text', 'about_tagline'] },
+  { id: 'about', label: 'About', icon: Type, fields: ['about_headline', 'about_body', 'about_mission', 'about_cta_text', 'about_tagline', 'stat_1_value', 'stat_1_label', 'stat_2_value', 'stat_2_label', 'stat_3_value', 'stat_3_label'] },
   { id: 'services', label: 'Services', icon: Briefcase, fields: ['service_1_name', 'service_1_description', 'service_1_benefit', 'service_1_cta', 'service_2_name', 'service_2_description', 'service_2_benefit', 'service_2_cta', 'service_3_name', 'service_3_description', 'service_3_benefit', 'service_3_cta', 'service_4_name', 'service_4_description', 'service_4_benefit', 'service_4_cta'] },
   { id: 'benefits', label: 'Why Us', icon: Star, fields: ['benefit_1_title', 'benefit_1_description', 'benefit_2_title', 'benefit_2_description', 'benefit_3_title', 'benefit_3_description', 'benefit_4_title', 'benefit_4_description'] },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, fields: ['testimonial_1_quote', 'testimonial_1_name', 'testimonial_1_role', 'testimonial_2_quote', 'testimonial_2_name', 'testimonial_2_role'] },

@@ -43,6 +43,13 @@ export type SiteContent = {
   business_email: string;
   industry_category: string;
   theme_selection: string;
+  // Innovative theme stat counters (editable in Admin → About section)
+  stat_1_value: string;
+  stat_1_label: string;
+  stat_2_value: string;
+  stat_2_label: string;
+  stat_3_value: string;
+  stat_3_label: string;
 };
 
 export type DisplayOptions = {
