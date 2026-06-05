@@ -66,6 +66,8 @@ export type DisplayOptions = {
   hero_media_type: 'image' | 'video';
   hero_image_ratio: 'default' | '16:9';  // default ≈ fixed 480px height; 16:9 = responsive widescreen
   hero_bg_mirror: boolean;
+  about_layout: 'standard' | 'three-column';  // three-column = image | text | stats
+  about_show_media: boolean;                   // show/hide the image in the about section
 };
 
 export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
@@ -82,6 +84,8 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   hero_media_type: 'image',
   hero_image_ratio: 'default',
   hero_bg_mirror: false,
+  about_layout: 'standard',
+  about_show_media: true,
 };
 
 export type ClientSite = {
@@ -102,6 +106,7 @@ export type ClientSite = {
   display_options: DisplayOptions | null;
   hero_image_url: string | null;
   hero_video_url: string | null;
+  about_image_url: string | null;
   gallery_images: string[] | null;
   status: 'active' | 'inactive' | 'pending';
   /** Kairos Award: number of premium expansion modules unlocked (0 = standard plan). */
@@ -117,6 +122,7 @@ export type SiteBranding = {
   theme: ThemeSelection;
   heroImageUrl: string | null;
   heroVideoUrl: string | null;
+  aboutImageUrl: string | null;
   galleryImages: string[];
 };
 
@@ -134,6 +140,7 @@ export function resolveBranding(site: ClientSite): SiteBranding {
     theme: site.theme || 'professional',
     heroImageUrl: site.hero_image_url ?? null,
     heroVideoUrl: site.hero_video_url ?? null,
+    aboutImageUrl: site.about_image_url ?? null,
     galleryImages: site.gallery_images ?? [],
   };
 }

@@ -85,6 +85,8 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   const [heroVideoUrlDraft, setHeroVideoUrlDraft] = useState('');
   const [heroVideoError, setHeroVideoError] = useState('');
   const [heroUploading, setHeroUploading] = useState(false);
+  const [aboutImageUrl, setAboutImageUrl] = useState<string | null>(null);
+  const [aboutUploading, setAboutUploading] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [galleryUploading, setGalleryUploading] = useState<number | null>(null);
   const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY_OPTIONS);
@@ -124,6 +126,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
           setHeroImageUrl(s.hero_image_url ?? null);
           setHeroVideoUrl(s.hero_video_url ?? null);
           setHeroVideoUrlDraft(s.hero_video_url ?? '');
+          setAboutImageUrl(s.about_image_url ?? null);
           setGalleryImages(s.gallery_images ?? []);
           setDisplayOptions({ ...DEFAULT_DISPLAY_OPTIONS, ...(s.display_options ?? {}) });
         }
@@ -166,6 +169,21 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
       setSaved(false);
     }
     setHeroUploading(false);
+  };
+
+  const handleAboutImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !site) return;
+    setAboutUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `about/${site.id}.${ext}`;
+    const { error } = await supabase.storage.from('client-assets').upload(path, file, { upsert: true });
+    if (!error) {
+      const { data } = supabase.storage.from('client-assets').getPublicUrl(path);
+      setAboutImageUrl(data.publicUrl);
+      setSaved(false);
+    }
+    setAboutUploading(false);
   };
 
   const applyVideoUrl = () => {
@@ -214,6 +232,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
         logo_url: logoUrl,
         hero_image_url: heroImageUrl,
         hero_video_url: heroVideoUrl,
+        about_image_url: aboutImageUrl,
         gallery_images: galleryImages,
         display_options: displayOptions,
       })
@@ -241,7 +260,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
 
   const content = resolveSiteContent(site);
   const liveContent = content ? { ...content, ...edits } as SiteContent : null;
-  const liveBranding = { logoUrl, primaryColor, secondaryColor, accentColor, theme, heroImageUrl, heroVideoUrl, galleryImages: galleryImages.filter(Boolean) };
+  const liveBranding = { logoUrl, primaryColor, secondaryColor, accentColor, theme, heroImageUrl, heroVideoUrl, aboutImageUrl, galleryImages: galleryImages.filter(Boolean) };
   const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
 
   return (
@@ -484,6 +503,78 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   <h2 className="text-lg font-semibold mb-1">{currentSection.label}</h2>
                   <p className="text-sm text-muted-foreground">Edit the content for this section</p>
                 </div>
+
+                {/* About section layout controls */}
+                {activeSection === 'about' && (
+                  <div className="card space-y-4">
+                    <h3 className="font-medium text-sm">About Layout</h3>
+
+                    {/* Layout toggle */}
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 mb-2">Section layout</p>
+                      <div className="flex rounded-lg border border-gray-200 p-1 gap-1">
+                        {([
+                          { value: 'standard',     label: 'Standard',    hint: 'Centered text block' },
+                          { value: 'three-column', label: '3-Column',    hint: 'Image | Text | Stats' },
+                        ] as { value: 'standard' | 'three-column'; label: string; hint: string }[]).map(opt => (
+                          <button key={opt.value} title={opt.hint}
+                            onClick={() => { setDisplayOptions(prev => ({ ...prev, about_layout: opt.value })); setSaved(false); }}
+                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                              (displayOptions.about_layout ?? 'standard') === opt.value
+                                ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-700'
+                            }`}>
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Show/hide media — only relevant in 3-column mode */}
+                    {(displayOptions.about_layout ?? 'standard') === 'three-column' && (
+                      <>
+                        <button
+                          onClick={() => { setDisplayOptions(prev => ({ ...prev, about_show_media: !(prev.about_show_media ?? true) })); setSaved(false); }}
+                          className="w-full flex items-center justify-between py-2 text-sm"
+                        >
+                          <span>Show photo in about section</span>
+                          <Toggle on={displayOptions.about_show_media ?? true} color={primaryColor} />
+                        </button>
+
+                        {/* About image upload — shown when media is on */}
+                        {(displayOptions.about_show_media ?? true) && (
+                          <div>
+                            <p className="text-xs font-medium text-gray-700 mb-2">About section photo</p>
+                            <div className="flex items-start gap-4">
+                              {aboutImageUrl ? (
+                                <div className="relative flex-shrink-0">
+                                  <img src={aboutImageUrl} alt="About" className="h-20 w-32 object-cover rounded-lg border" />
+                                  <button
+                                    onClick={() => { setAboutImageUrl(null); setSaved(false); }}
+                                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="h-20 w-32 rounded-lg border bg-muted flex items-center justify-center flex-shrink-0">
+                                  <Image size={20} className="text-muted-foreground" />
+                                </div>
+                              )}
+                              <div>
+                                <label className="btn btn-outline text-sm cursor-pointer py-1.5 px-3 inline-flex items-center gap-2">
+                                  <Upload size={14} />
+                                  {aboutUploading ? 'Uploading…' : aboutImageUrl ? 'Change Photo' : 'Upload Photo'}
+                                  <input type="file" accept="image/*" className="hidden" onChange={handleAboutImageUpload} disabled={aboutUploading} />
+                                </label>
+                                <p className="text-xs text-muted-foreground mt-1.5">Landscape works best. Falls back to hero image if not set.</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* Hero media */}
                 {activeSection === 'hero' && (

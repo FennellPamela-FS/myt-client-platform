@@ -406,16 +406,17 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       )}
 
       {/* ── About ──────────────────────────────────────────────────────── */}
-      {isInnovative ? (
-        /* ── Innovative about: image | text | stats 3-col ── */
-        <section id="about" className="py-24 px-6 bg-slate-900 relative">
+      {opts.about_layout === 'three-column' ? (
+        /* ── 3-column about: image | text | stats (any theme) ── */
+        <section id="about" className={`py-24 px-6 ${tc.altSectionBg} relative`}>
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: `linear-gradient(90deg, transparent, ${branding.primaryColor}, ${branding.accentColor}, transparent)` }} />
-          <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-10 items-start">
-            {/* Col 1: image */}
-            <div className="relative overflow-hidden rounded aspect-video bg-slate-800">
-              {branding.heroImageUrl
-                ? <img src={branding.heroImageUrl} alt={businessName} className="w-full h-full object-cover" />
+          <div className={`max-w-7xl mx-auto grid gap-10 items-start ${opts.about_show_media !== false ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+            {/* Col 1: image — only shown when about_show_media is on */}
+            {opts.about_show_media !== false && (
+            <div className={`relative overflow-hidden rounded aspect-video ${isDarkAltBg ? 'bg-slate-800' : 'bg-gray-100'}`}>
+              {(branding.aboutImageUrl || branding.heroImageUrl)
+                ? <img src={branding.aboutImageUrl || branding.heroImageUrl!} alt={businessName} className="w-full h-full object-cover" />
                 : <div className="w-full h-full flex items-center justify-center text-3xl font-black tracking-widest"
                     style={{ color: `${branding.primaryColor}60` }}>
                     {businessName.charAt(0)}
@@ -423,15 +424,16 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               <div className="absolute bottom-0 left-0 right-0 h-0.5"
                 style={{ background: `linear-gradient(90deg, ${branding.primaryColor}, ${branding.accentColor})` }} />
             </div>
+            )}
             {/* Col 2: text */}
             <div>
               <p className="text-xs font-bold tracking-[0.3em] uppercase mb-3"
                 style={{ color: branding.primaryColor }}>{content.about_tagline}</p>
-              <h2 className={`text-2xl md:text-3xl mb-4 ${tc.headingClass} text-neutral-100`}>
+              <h2 className={`text-2xl md:text-3xl mb-4 ${tc.headingClass} ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
                 {content.about_headline}
               </h2>
-              <p className="text-sm leading-relaxed text-neutral-300 mb-4">{content.about_body}</p>
-              <p className="text-sm italic text-neutral-500 mb-6">{content.about_mission}</p>
+              <p className={`text-sm leading-relaxed mb-4 ${isDarkAltBg ? 'text-neutral-300' : 'text-gray-600'}`}>{content.about_body}</p>
+              <p className={`text-sm italic mb-6 ${isDarkAltBg ? 'text-neutral-500' : 'text-gray-400'}`}>{content.about_mission}</p>
               <a href="#benefits"
                 className={`inline-flex px-6 py-2.5 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
                 style={{ backgroundColor: branding.primaryColor }}>
@@ -567,9 +569,9 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       )}
 
       {/* ── Benefits ───────────────────────────────────────────────────── */}
-      {isInnovative ? (
-        /* ── Innovative benefits: numbered grid with alternating accent colors ── */
-        <section id="benefits" className="py-24 px-6 bg-slate-950 relative">
+      {(isInnovative || opts.about_layout === 'three-column') ? (
+        /* ── High-impact benefits: numbered grid with alternating accent colors ── */
+        <section id="benefits" className={`py-24 px-6 ${tc.altSectionBg} relative`}>
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: `linear-gradient(90deg, transparent, ${branding.primaryColor}, ${branding.accentColor}, transparent)` }} />
           <div className="max-w-7xl mx-auto">
@@ -580,15 +582,15 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               {[1, 2, 3, 4].map(n => {
                 const accentCol = n % 2 === 1 ? branding.primaryColor : branding.accentColor;
                 return (
-                  <div key={n} className="flex items-start gap-5 p-6 rounded border bg-slate-900"
-                    style={{ borderColor: `${accentCol}30` }}>
+                  <div key={n} className={`flex items-start gap-5 p-6 ${tc.radiusClass} border ${isDarkAltBg ? 'bg-slate-900' : 'bg-white'}`}
+                    style={{ borderColor: `${accentCol}40` }}>
                     <div className="text-3xl font-black flex-shrink-0 leading-none mt-0.5"
                       style={{ color: accentCol }}>0{n}</div>
                     <div>
-                      <h3 className={`font-black tracking-wide uppercase text-sm mb-2 text-neutral-100`}>
+                      <h3 className={`font-black tracking-wide uppercase text-sm mb-2 ${isDarkAltBg ? 'text-neutral-100' : 'text-gray-900'}`}>
                         {content[`benefit_${n}_title` as keyof SiteContent]}
                       </h3>
-                      <p className="text-sm text-neutral-400">
+                      <p className={`text-sm ${isDarkAltBg ? 'text-neutral-400' : 'text-gray-500'}`}>
                         {content[`benefit_${n}_description` as keyof SiteContent]}
                       </p>
                     </div>
