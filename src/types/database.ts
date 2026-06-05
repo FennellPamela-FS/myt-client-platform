@@ -3,7 +3,8 @@ export type ThemeSelection =
   | 'creative'
   | 'wellness'
   | 'luxury'
-  | 'minimalist';
+  | 'minimalist'
+  | 'innovative';
 
 export type SiteContent = {
   hero_headline: string;

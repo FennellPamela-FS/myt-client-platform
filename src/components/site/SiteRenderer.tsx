@@ -103,6 +103,17 @@ const THEME_CONFIGS: Record<ThemeSelection, ThemeConfig> = {
     cardClass: 'bg-white border border-gray-200 rounded-none',
     radiusClass: 'rounded-none',
   },
+  innovative: {
+    heroLayout: 'centered',
+    headingClass: 'font-black tracking-widest uppercase',
+    subheadingClass: 'font-bold tracking-wide uppercase',
+    btnPrimaryClass: 'rounded font-bold tracking-widest uppercase text-sm',
+    btnSecondaryClass: 'rounded border-2 font-bold tracking-widest uppercase text-sm',
+    sectionBg: 'bg-slate-950',
+    altSectionBg: 'bg-slate-900',
+    cardClass: 'bg-slate-900 border border-slate-700 rounded',
+    radiusClass: 'rounded',
+  },
 };
 
 // ─── Industry hero images (Unsplash, royalty-free) ──────────────────────────
@@ -155,10 +166,13 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
   }
 
   const tc = THEME_CONFIGS[branding.theme];
-  const isLuxury   = branding.theme === 'luxury';
-  const isCreative = branding.theme === 'creative';
-  // creative uses bg-gray-950 for altSectionBg — needs light text just like luxury
-  const isDarkAltBg = isLuxury || isCreative;
+  const isLuxury     = branding.theme === 'luxury';
+  const isCreative   = branding.theme === 'creative';
+  const isInnovative = branding.theme === 'innovative';
+  // Both luxury and innovative use dark root backgrounds — light text required throughout
+  const isDarkTheme  = isLuxury || isInnovative;
+  // creative + luxury + innovative all use dark altSectionBg
+  const isDarkAltBg  = isDarkTheme || isCreative;
   const opts = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };
   const [formSent, setFormSent] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', service: '', message: '' });
@@ -175,14 +189,14 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
     '--brand-accent': branding.accentColor,
   } as React.CSSProperties;
 
-  const textColor = isLuxury ? 'text-neutral-100' : 'text-gray-900';
-  const mutedColor = isLuxury ? 'text-neutral-400' : 'text-gray-500';
+  const textColor = isDarkTheme ? 'text-neutral-100' : 'text-gray-900';
+  const mutedColor = isDarkTheme ? 'text-neutral-400' : 'text-gray-500';
 
   return (
-    <div style={cssVars} className={`font-sans ${isLuxury ? 'bg-neutral-950 text-neutral-100' : 'bg-white text-gray-900'}`}>
+    <div style={cssVars} className={`font-sans ${isDarkTheme ? `${tc.sectionBg} text-neutral-100` : 'bg-white text-gray-900'}`}>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <header className={`sticky top-0 z-50 ${isLuxury ? 'bg-neutral-950 border-b border-neutral-800' : 'bg-white border-b border-gray-100 shadow-sm'}`}>
+      <header className={`sticky top-0 z-50 ${isDarkTheme ? `${tc.sectionBg} border-b ${isInnovative ? 'border-slate-800' : 'border-neutral-800'}` : 'bg-white border-b border-gray-100 shadow-sm'}`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Icon or logo */}
@@ -200,12 +214,12 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
             {(opts.show_nav_name || (branding.logoUrl && opts.nav_show_tagline)) && (
               <div className="flex flex-col leading-tight">
                 {opts.show_nav_name && (
-                  <span className={`font-semibold ${isLuxury ? 'text-neutral-100 tracking-widest uppercase text-sm' : 'text-lg'}`}>
+                  <span className={`font-semibold ${isDarkTheme ? 'text-neutral-100 tracking-widest uppercase text-sm' : 'text-lg'}`}>
                     {businessName}
                   </span>
                 )}
                 {branding.logoUrl && opts.nav_show_tagline && content.brand_tagline && (
-                  <span className={`text-xs ${isLuxury ? 'text-neutral-400' : 'text-gray-500'}`}>
+                  <span className={`text-xs ${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>
                     {content.brand_tagline}
                   </span>
                 )}
@@ -217,7 +231,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               <a
                 key={item}
                 href={item === 'Home' ? '#' : `#${item.toLowerCase()}`}
-                className={`transition-colors ${isLuxury ? 'text-neutral-400 hover:text-neutral-100 tracking-wider uppercase text-xs' : 'text-gray-600 hover:text-gray-900'}`}
+                className={`transition-colors ${isDarkTheme ? 'text-neutral-400 hover:text-neutral-100 tracking-wider uppercase text-xs' : 'text-gray-600 hover:text-gray-900'}`}
               >
                 {item}
               </a>
@@ -361,7 +375,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       <section id="services" className={`py-24 px-6 ${tc.sectionBg}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+            <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
               Services
             </h2>
             <div className="w-16 h-1 mx-auto" style={{ backgroundColor: branding.primaryColor }} />
@@ -379,8 +393,8 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                     style={{ backgroundColor: branding.primaryColor }}>
                     {n}
                   </div>
-                  <h3 className={`font-semibold text-lg ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>{name}</h3>
-                  <p className={`text-sm flex-1 ${isLuxury ? 'text-neutral-400' : 'text-gray-500'}`}>{desc}</p>
+                  <h3 className={`font-semibold text-lg ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>{name}</h3>
+                  <p className={`text-sm flex-1 ${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>{desc}</p>
                   <p className="text-xs font-semibold" style={{ color: branding.primaryColor }}>{benefit}</p>
                   <a
                     href={`mailto:${content.business_email}`}
@@ -401,7 +415,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
         <section className={`py-24 px-6 ${tc.altSectionBg}`}>
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+              <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
                 Our Work
               </h2>
               <div className="w-16 h-1 mx-auto" style={{ backgroundColor: branding.primaryColor }} />
@@ -456,21 +470,21 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       {/* ── Testimonials ───────────────────────────────────────────────── */}
       <section className={`py-24 px-6 ${tc.sectionBg}`}>
         <div className="max-w-5xl mx-auto">
-          <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+          <h2 className={`text-3xl md:text-4xl text-center mb-16 ${tc.headingClass} ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
             What Clients Say
           </h2>
           <div className="grid md:grid-cols-2 gap-8">
             {[1, 2].map(n => (
               <div key={n} className={`p-8 ${tc.cardClass}`}>
                 <div className="text-3xl mb-4" style={{ color: branding.primaryColor }}>"</div>
-                <p className={`text-base italic mb-6 leading-relaxed ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>
+                <p className={`text-base italic mb-6 leading-relaxed ${isDarkTheme ? 'text-neutral-300' : 'text-gray-600'}`}>
                   {content[`testimonial_${n}_quote` as keyof SiteContent]}
                 </p>
                 <div>
-                  <p className={`font-semibold ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                  <p className={`font-semibold ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
                     {content[`testimonial_${n}_name` as keyof SiteContent]}
                   </p>
-                  <p className={`text-sm ${isLuxury ? 'text-neutral-500' : 'text-gray-400'}`}>
+                  <p className={`text-sm ${isDarkTheme ? 'text-neutral-500' : 'text-gray-400'}`}>
                     {content[`testimonial_${n}_role` as keyof SiteContent]}
                   </p>
                 </div>
@@ -513,13 +527,13 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
 
       {/* ── Contact form ───────────────────────────────────────────────── */}
       {opts.show_contact_form && (
-        <section id="contact" className={`py-24 px-6 ${isLuxury ? 'bg-neutral-900' : 'bg-gray-50'}`}>
+        <section id="contact" className={`py-24 px-6 ${isDarkTheme ? `${tc.altSectionBg}` : 'bg-gray-50'}`}>
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+              <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
                 {content.contact_form_title || 'Get Your Free Estimate'}
               </h2>
-              <p className={`${isLuxury ? 'text-neutral-400' : 'text-gray-500'}`}>
+              <p className={`${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>
                 {content.contact_form_subtitle || 'Ready to get started? Fill out the form and we\'ll get back to you within 24 hours.'}
               </p>
             </div>
@@ -533,10 +547,10 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                       style={{ backgroundColor: `${branding.primaryColor}22`, color: branding.primaryColor }}>
                       ✓
                     </div>
-                    <h3 className={`text-xl font-semibold mb-2 ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                    <h3 className={`text-xl font-semibold mb-2 ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
                       Message Sent!
                     </h3>
-                    <p className={isLuxury ? 'text-neutral-400' : 'text-gray-500'}>
+                    <p className={isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}>
                       We'll be in touch within 24 hours.
                     </p>
                   </div>
@@ -551,34 +565,34 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                   >
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>First Name *</label>
+                        <label className={`block text-sm font-medium mb-1.5 ${isDarkTheme ? 'text-neutral-300' : 'text-gray-700'}`}>First Name *</label>
                         <input required value={formData.name.split(' ')[0]} onChange={e => setFormData(p => ({ ...p, name: e.target.value + ' ' + (p.name.split(' ')[1] || '') }))}
-                          className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                          className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isDarkTheme ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
                           placeholder="John" />
                       </div>
                       <div>
-                        <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Last Name *</label>
+                        <label className={`block text-sm font-medium mb-1.5 ${isDarkTheme ? 'text-neutral-300' : 'text-gray-700'}`}>Last Name *</label>
                         <input required value={formData.name.split(' ')[1] || ''} onChange={e => setFormData(p => ({ ...p, name: (p.name.split(' ')[0] || '') + ' ' + e.target.value }))}
-                          className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                          className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isDarkTheme ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
                           placeholder="Doe" />
                       </div>
                     </div>
                     <div>
-                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Email *</label>
+                      <label className={`block text-sm font-medium mb-1.5 ${isDarkTheme ? 'text-neutral-300' : 'text-gray-700'}`}>Email *</label>
                       <input required type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isDarkTheme ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
                         placeholder="john@example.com" />
                     </div>
                     <div>
-                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Phone *</label>
+                      <label className={`block text-sm font-medium mb-1.5 ${isDarkTheme ? 'text-neutral-300' : 'text-gray-700'}`}>Phone *</label>
                       <input required type="tel" value={formData.phone} onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
-                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isDarkTheme ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
                         placeholder="(555) 123-4567" />
                     </div>
                     <div>
-                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Service Interested In</label>
+                      <label className={`block text-sm font-medium mb-1.5 ${isDarkTheme ? 'text-neutral-300' : 'text-gray-700'}`}>Service Interested In</label>
                       <select value={formData.service} onChange={e => setFormData(p => ({ ...p, service: e.target.value }))}
-                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}>
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm focus:outline-none focus:ring-2 ${isDarkTheme ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}>
                         <option value="">Select a service</option>
                         {[1, 2, 3, 4].map(n => {
                           const name = content[`service_${n}_name` as keyof SiteContent];
@@ -587,9 +601,9 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                       </select>
                     </div>
                     <div>
-                      <label className={`block text-sm font-medium mb-1.5 ${isLuxury ? 'text-neutral-300' : 'text-gray-700'}`}>Message</label>
+                      <label className={`block text-sm font-medium mb-1.5 ${isDarkTheme ? 'text-neutral-300' : 'text-gray-700'}`}>Message</label>
                       <textarea rows={4} value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
-                        className={`w-full px-3 py-2.5 rounded-md border text-sm resize-none focus:outline-none focus:ring-2 ${isLuxury ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
+                        className={`w-full px-3 py-2.5 rounded-md border text-sm resize-none focus:outline-none focus:ring-2 ${isDarkTheme ? 'bg-neutral-800 border-neutral-700 text-neutral-100 focus:ring-neutral-500' : 'bg-white border-gray-200 focus:ring-primary'}`}
                         placeholder="Tell us about your project…" />
                     </div>
                     <button type="submit"
@@ -604,32 +618,32 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               {/* Get in touch */}
               <div className="space-y-6">
                 <div>
-                  <h3 className={`text-xl font-semibold mb-4 ${isLuxury ? 'text-neutral-100' : 'text-gray-900'}`}>
+                  <h3 className={`text-xl font-semibold mb-4 ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
                     Get In Touch
                   </h3>
                   <div className="space-y-3">
                     {opts.show_phone && content.business_phone && (
                       <div className="flex items-center gap-3">
                         <Phone size={16} style={{ color: branding.primaryColor }} />
-                        <span className={`text-sm ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_phone}</span>
+                        <span className={`text-sm ${isDarkTheme ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_phone}</span>
                       </div>
                     )}
                     <div className="flex items-center gap-3">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: branding.primaryColor }}>
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
                       </svg>
-                      <a href={`mailto:${content.business_email}`} className={`text-sm hover:underline ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_email}</a>
+                      <a href={`mailto:${content.business_email}`} className={`text-sm hover:underline ${isDarkTheme ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_email}</a>
                     </div>
                     {opts.show_address && content.business_address && (
                       <div className="flex items-start gap-3">
                         <MapPin size={16} style={{ color: branding.primaryColor }} className="mt-0.5 flex-shrink-0" />
-                        <span className={`text-sm ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_address}</span>
+                        <span className={`text-sm ${isDarkTheme ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_address}</span>
                       </div>
                     )}
                     {opts.show_hours && content.business_hours && (
                       <div className="flex items-center gap-3">
                         <Clock size={16} style={{ color: branding.primaryColor }} />
-                        <span className={`text-sm ${isLuxury ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_hours}</span>
+                        <span className={`text-sm ${isDarkTheme ? 'text-neutral-300' : 'text-gray-600'}`}>{content.business_hours}</span>
                       </div>
                     )}
                   </div>
@@ -658,7 +672,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       )}
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
-      <footer className={`${isLuxury ? 'bg-neutral-950 border-t border-neutral-800' : 'bg-gray-900'} text-white`}>
+      <footer className={`${isDarkTheme ? `${tc.sectionBg} border-t ${isInnovative ? 'border-slate-800' : 'border-neutral-800'}` : 'bg-gray-900'} text-white`}>
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-3 gap-12">
             {/* Brand */}

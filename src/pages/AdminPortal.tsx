@@ -43,11 +43,12 @@ const NAV_SECTIONS = [
 ];
 
 const THEMES: { value: ThemeSelection; label: string; desc: string }[] = [
-  { value: 'professional', label: 'Professional', desc: 'Clean, corporate, trust-building' },
-  { value: 'creative', label: 'Creative', desc: 'Bold, expressive, design-forward' },
-  { value: 'wellness', label: 'Wellness', desc: 'Calm, nurturing, organic' },
-  { value: 'luxury', label: 'Luxury', desc: 'Premium, refined, elegant' },
-  { value: 'minimalist', label: 'Minimalist', desc: 'Simple, spacious, focused' },
+  { value: 'professional', label: 'Professional',  desc: 'Clean, corporate, trust-building' },
+  { value: 'creative',     label: 'Creative',      desc: 'Bold, expressive, design-forward' },
+  { value: 'wellness',     label: 'Wellness',      desc: 'Calm, nurturing, organic' },
+  { value: 'luxury',       label: 'Luxury',        desc: 'Premium, refined, elegant' },
+  { value: 'minimalist',   label: 'Minimalist',    desc: 'Simple, spacious, focused' },
+  { value: 'innovative',   label: 'Innovative',    desc: 'Tech-forward, bold, dark navy — high-contrast impact' },
 ];
 
 function fieldLabel(key: string) {
