@@ -180,6 +180,16 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', service: '', message: '' });
   const [bookingOpen, setBookingOpen] = useState(false);
 
+  function handleServiceInquiry(serviceName: string) {
+    setFormSent(false);
+    setFormData(p => ({
+      ...p,
+      service: serviceName,
+      message: p.message || `I'd like more information about ${serviceName}.`,
+    }));
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!siteId) return;
@@ -559,13 +569,13 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                     style={isInnovative ? { color: branding.primaryColor } : undefined}>{name}</h3>
                   <p className={`text-sm flex-1 ${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>{desc}</p>
                   <p className="text-xs font-semibold" style={{ color: isInnovative ? branding.accentColor : branding.primaryColor }}>{benefit}</p>
-                  <a
-                    href={`mailto:${content.business_email}`}
+                  <button
+                    onClick={() => handleServiceInquiry(name as string)}
                     className={`text-xs transition-colors hover:opacity-80 ${tc.btnSecondaryClass} px-4 py-2 text-center`}
                     style={{ borderColor: branding.primaryColor, color: branding.primaryColor }}
                   >
                     {cta}
-                  </a>
+                  </button>
                   </div>{/* close inner p-6 div for innovative */}
                 </div>
               );
