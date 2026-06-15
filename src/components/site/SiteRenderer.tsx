@@ -182,11 +182,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
 
   function handleServiceInquiry(serviceName: string) {
     setFormSent(false);
-    setFormData(p => ({
-      ...p,
-      service: serviceName,
-      message: p.message || `I'd like more information about ${serviceName}.`,
-    }));
+    setFormData(p => ({ ...p, service: serviceName }));
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
   }
 
