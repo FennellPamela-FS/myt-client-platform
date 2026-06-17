@@ -1102,9 +1102,10 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                           type="url"
                           value={currentVal}
                           onChange={e => handleChange(key, e.target.value)}
-                          placeholder="https://example.com/service — leave blank to use contact form"
+                          placeholder="https://example.com/service-page"
                           className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         />
+                        <p className="text-xs text-muted-foreground mt-1">Leave blank to scroll visitors to the contact form instead.</p>
                       </div>
                     );
                   }
