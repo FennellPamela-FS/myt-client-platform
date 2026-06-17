@@ -58,6 +58,11 @@ export type SiteContent = {
   // Secondary nav button (e.g. Donate)
   nav_secondary_button_label: string;
   nav_secondary_button_url: string;
+  // Optional custom URLs for service buttons (blank = scroll to contact form)
+  service_1_url: string;
+  service_2_url: string;
+  service_3_url: string;
+  service_4_url: string;
 };
 
 export type DisplayOptions = {
@@ -79,6 +84,8 @@ export type DisplayOptions = {
   show_nav_secondary_button: boolean;          // show second CTA button in nav (e.g. Donate)
   show_engagement_options: boolean;            // append "Become a Partner" + "Become a Volunteer" to service dropdown
   services_layout: 'standard' | 'icon-grid';  // standard = 4-column cards; icon-grid = 2x2 icons + side image
+  services_show_icons: boolean;               // icon-grid only: show/hide the icon badges
+  services_show_buttons: boolean;             // both layouts: show/hide CTA buttons/links
 };
 
 export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
@@ -100,6 +107,8 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   show_nav_secondary_button: false,
   show_engagement_options: false,
   services_layout: 'standard',
+  services_show_icons: true,
+  services_show_buttons: true,
 };
 
 export type ClientSite = {

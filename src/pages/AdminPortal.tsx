@@ -33,7 +33,7 @@ const NAV_SECTIONS = [
   { id: 'navigation',  label: 'Navigation',  icon: Menu,    fields: [] },
   { id: 'hero', label: 'Hero Section', icon: Layout, fields: ['hero_headline', 'hero_subheadline', 'hero_cta_primary', 'hero_cta_secondary', 'hero_value_statement'] },
   { id: 'about', label: 'About', icon: Type, fields: ['about_headline', 'about_body', 'about_mission', 'about_cta_text', 'about_tagline', 'stat_1_value', 'stat_1_label', 'stat_2_value', 'stat_2_label', 'stat_3_value', 'stat_3_label'] },
-  { id: 'services', label: 'Services', icon: Briefcase, fields: ['service_1_name', 'service_1_description', 'service_1_benefit', 'service_1_cta', 'service_2_name', 'service_2_description', 'service_2_benefit', 'service_2_cta', 'service_3_name', 'service_3_description', 'service_3_benefit', 'service_3_cta', 'service_4_name', 'service_4_description', 'service_4_benefit', 'service_4_cta'] },
+  { id: 'services', label: 'Services', icon: Briefcase, fields: ['service_1_name', 'service_1_description', 'service_1_benefit', 'service_1_cta', 'service_1_url', 'service_2_name', 'service_2_description', 'service_2_benefit', 'service_2_cta', 'service_2_url', 'service_3_name', 'service_3_description', 'service_3_benefit', 'service_3_cta', 'service_3_url', 'service_4_name', 'service_4_description', 'service_4_benefit', 'service_4_cta', 'service_4_url'] },
   { id: 'benefits', label: 'Why Us', icon: Star, fields: ['benefit_1_title', 'benefit_1_description', 'benefit_2_title', 'benefit_2_description', 'benefit_3_title', 'benefit_3_description', 'benefit_4_title', 'benefit_4_description'] },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, fields: ['testimonial_1_quote', 'testimonial_1_name', 'testimonial_1_role', 'testimonial_2_quote', 'testimonial_2_name', 'testimonial_2_role'] },
   { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url'] },
@@ -556,6 +556,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                 {activeSection === 'services' && (
                   <div className="card space-y-4">
                     <h3 className="font-medium text-sm">Services Layout</h3>
+                    {/* Layout selector */}
                     <div>
                       <p className="text-xs font-medium text-gray-700 mb-2">Section layout</p>
                       <div className="flex rounded-lg border border-gray-200 p-1 gap-1">
@@ -574,6 +575,25 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                         ))}
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">Icon Grid layout uses the photo from your About section alongside the services.</p>
+                    </div>
+                    {/* Show/hide toggles */}
+                    <div className="border-t border-border pt-3 space-y-1">
+                      {(displayOptions.services_layout ?? 'standard') === 'icon-grid' && (
+                        <button
+                          onClick={() => { setDisplayOptions(prev => ({ ...prev, services_show_icons: !(prev.services_show_icons ?? true) })); setSaved(false); }}
+                          className="w-full flex items-center justify-between py-2 text-sm"
+                        >
+                          <span>Show icons</span>
+                          <Toggle on={displayOptions.services_show_icons ?? true} color={primaryColor} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { setDisplayOptions(prev => ({ ...prev, services_show_buttons: !(prev.services_show_buttons ?? true) })); setSaved(false); }}
+                        className="w-full flex items-center justify-between py-2 text-sm"
+                      >
+                        <span>Show buttons / links</span>
+                        <Toggle on={displayOptions.services_show_buttons ?? true} color={primaryColor} />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -1065,6 +1085,24 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                           value={currentVal}
                           onChange={e => handleChange(key, e.target.value)}
                           placeholder={cfg.placeholder}
+                          className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </div>
+                    );
+                  }
+
+                  // Service URL fields — URL input with hint
+                  if (/^service_[1-4]_url$/.test(key)) {
+                    const n = key[8];
+                    const currentVal = (edits[key as keyof SiteContent] ?? content?.[key as keyof SiteContent] ?? '') as string;
+                    return (
+                      <div key={key}>
+                        <label className="block text-sm font-medium mb-1">Service {n} Button URL <span className="text-muted-foreground font-normal">(optional)</span></label>
+                        <input
+                          type="url"
+                          value={currentVal}
+                          onChange={e => handleChange(key, e.target.value)}
+                          placeholder="https://example.com/service — leave blank to use contact form"
                           className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         />
                       </div>
