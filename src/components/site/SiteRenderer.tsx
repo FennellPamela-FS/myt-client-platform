@@ -995,18 +995,38 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               </ul>
               {/* Social links */}
               {(content.social_instagram || content.social_facebook || content.social_twitter || content.social_linkedin) && (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2.5">
                   {[
-                    { url: content.social_instagram, label: 'Instagram' },
-                    { url: content.social_facebook,  label: 'Facebook'  },
-                    { url: content.social_twitter,   label: 'Twitter'   },
-                    { url: content.social_linkedin,  label: 'LinkedIn'  },
-                  ].filter(s => s.url).map(({ url, label }) => (
-                    <a key={label} href={url.startsWith('http') ? url : `https://${url}`}
+                    { url: content.social_instagram, label: 'Instagram', icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="17" height="17">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+                      </svg>
+                    )},
+                    { url: content.social_facebook, label: 'Facebook', icon: (
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17">
+                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                      </svg>
+                    )},
+                    { url: content.social_twitter, label: 'X', icon: (
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                    )},
+                    { url: content.social_linkedin, label: 'LinkedIn', icon: (
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17">
+                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/>
+                        <circle cx="4" cy="4" r="2"/>
+                      </svg>
+                    )},
+                  ].filter(s => s.url).map(({ url, label, icon }) => (
+                    <a key={label}
+                      href={url.startsWith('http') ? url : `https://${url}`}
                       target="_blank" rel="noopener noreferrer"
-                      className="text-xs text-gray-400 hover:text-white transition-colors border border-gray-700 hover:border-gray-500 rounded px-2.5 py-1"
-                      style={{ ['--hover-color' as string]: branding.primaryColor }}>
-                      {label}
+                      aria-label={label} title={label}
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 transition-colors">
+                      {icon}
                     </a>
                   ))}
                 </div>
