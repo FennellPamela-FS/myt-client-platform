@@ -10,26 +10,27 @@ interface SitePageProps {
   slug?: string;
 }
 
+type AgencySettings = { agency_name: string; agency_website_url: string; show_powered_by: boolean };
+
 export default function SitePage({ slug: slugProp }: SitePageProps) {
   const params = useParams<{ slug: string }>();
   const slug = slugProp ?? params.slug;
   const [site, setSite] = useState<ClientSite | null>(null);
+  const [agencySettings, setAgencySettings] = useState<AgencySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
-    supabase
-      .from('client_sites_saas')
-      .select('*')
-      .eq('slug', slug)
-      .eq('status', 'active')
-      .single()
-      .then(({ data, error }) => {
-        if (error || !data) setNotFound(true);
-        else setSite(data as unknown as ClientSite);
-        setLoading(false);
-      });
+    Promise.all([
+      supabase.from('client_sites_saas').select('*').eq('slug', slug).eq('status', 'active').single(),
+      supabase.from('agency_settings').select('agency_name, agency_website_url, show_powered_by').maybeSingle(),
+    ]).then(([siteRes, agencyRes]) => {
+      if (siteRes.error || !siteRes.data) setNotFound(true);
+      else setSite(siteRes.data as unknown as ClientSite);
+      if (agencyRes.data) setAgencySettings(agencyRes.data as AgencySettings);
+      setLoading(false);
+    });
   }, [slug]);
 
   if (loading) return (
@@ -67,6 +68,7 @@ export default function SitePage({ slug: slugProp }: SitePageProps) {
         slug={slug!}
         siteId={site.id}
         displayOptions={site.display_options}
+        agencySettings={agencySettings}
       />
     </div>
   );

@@ -139,6 +139,8 @@ const INDUSTRY_IMAGES: Record<string, string> = {
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
+type AgencySettings = { agency_name: string; agency_website_url: string; show_powered_by: boolean };
+
 type Props = {
   content: SiteContent;
   branding: SiteBranding;
@@ -146,11 +148,12 @@ type Props = {
   slug?: string;
   siteId?: string;
   displayOptions?: DisplayOptions | null;
+  agencySettings?: AgencySettings | null;
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function SiteRenderer({ content, branding, businessName, slug, siteId, displayOptions }: Props) {
+export default function SiteRenderer({ content, branding, businessName, slug, siteId, displayOptions, agencySettings }: Props) {
   // ── Culinary vertical → dedicated template ──────────────────────────────────
   if (siteId && CULINARY_CATEGORIES.has(content.industry_category)) {
     return (
@@ -1016,7 +1019,17 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
         <div className="border-t border-gray-800">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between text-xs text-gray-500">
             <span>© {new Date().getFullYear()} {businessName}. All Rights Reserved.</span>
-            <span style={{ color: branding.primaryColor }} className="text-xs">Powered by mytCreative</span>
+            {(agencySettings?.show_powered_by ?? true) && (
+              <a
+                href={agencySettings?.agency_website_url || 'https://mytcreative.com'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: branding.primaryColor }}
+                className="text-xs hover:opacity-80 transition-opacity"
+              >
+                Powered by {agencySettings?.agency_name || 'mytCreative'}
+              </a>
+            )}
           </div>
         </div>
       </footer>
