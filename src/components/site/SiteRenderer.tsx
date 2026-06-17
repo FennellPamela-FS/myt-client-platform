@@ -281,13 +281,26 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
               </a>
             ))}
           </nav>
-          <a
-            href="#contact"
-            className={`hidden md:inline-flex px-4 py-2 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
-            style={{ backgroundColor: branding.primaryColor }}
-          >
-            {content.hero_cta_primary}
-          </a>
+          <div className="hidden md:flex items-center gap-2">
+            {opts.show_nav_secondary_button && content.nav_secondary_button_url && (
+              <a
+                href={content.nav_secondary_button_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`px-4 py-2 text-sm font-medium border transition-opacity hover:opacity-80 ${tc.btnSecondaryClass}`}
+                style={{ borderColor: branding.primaryColor, color: branding.primaryColor }}
+              >
+                {content.nav_secondary_button_label || 'Donate'}
+              </a>
+            )}
+            <a
+              href="#contact"
+              className={`px-4 py-2 text-sm text-white transition-opacity hover:opacity-90 ${tc.btnPrimaryClass}`}
+              style={{ backgroundColor: branding.primaryColor }}
+            >
+              {content.hero_cta_primary}
+            </a>
+          </div>
         </div>
       </header>
 

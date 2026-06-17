@@ -35,7 +35,7 @@ const NAV_SECTIONS = [
   { id: 'services', label: 'Services', icon: Briefcase, fields: ['service_1_name', 'service_1_description', 'service_1_benefit', 'service_1_cta', 'service_2_name', 'service_2_description', 'service_2_benefit', 'service_2_cta', 'service_3_name', 'service_3_description', 'service_3_benefit', 'service_3_cta', 'service_4_name', 'service_4_description', 'service_4_benefit', 'service_4_cta'] },
   { id: 'benefits', label: 'Why Us', icon: Star, fields: ['benefit_1_title', 'benefit_1_description', 'benefit_2_title', 'benefit_2_description', 'benefit_3_title', 'benefit_3_description', 'benefit_4_title', 'benefit_4_description'] },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, fields: ['testimonial_1_quote', 'testimonial_1_name', 'testimonial_1_role', 'testimonial_2_quote', 'testimonial_2_name', 'testimonial_2_role'] },
-  { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url'] },
+  { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url', 'nav_secondary_button_label', 'nav_secondary_button_url'] },
   { id: 'gallery', label: 'Photo Gallery', icon: Image, fields: [] },
   { id: 'contact_info', label: 'Contact Info', icon: Phone, fields: ['business_phone', 'business_address', 'business_hours', 'contact_form_title', 'contact_form_subtitle', 'contact_form_button_text'] },
   { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email', 'social_instagram', 'social_facebook', 'social_twitter', 'social_linkedin'] },
@@ -850,6 +850,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                     {([
                       { key: 'show_nav_logo', label: 'Logo in navigation' },
                       { key: 'show_nav_name', label: 'Business name in navigation' },
+                      { key: 'show_nav_secondary_button', label: 'Secondary nav button (e.g. Donate)' },
                       { key: 'show_footer_logo', label: 'Logo in footer' },
                       { key: 'show_footer_name', label: 'Business name in footer' },
                       { key: 'show_phone', label: 'Phone number' },
@@ -872,11 +873,15 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                 {currentSection.fields.map(key => {
                   // Hide booking_url field when booking CTA is disabled
                   if (key === 'booking_url' && !displayOptions.use_booking_cta) return null;
+                  if ((key === 'nav_secondary_button_label' || key === 'nav_secondary_button_url') && !displayOptions.show_nav_secondary_button) return null;
                   const currentVal = (edits[key as keyof SiteContent] ?? content?.[key as keyof SiteContent] ?? '') as string;
                   return (
                     <div key={key}>
                       <label className="block text-sm font-medium mb-1.5">
-                        {key === 'booking_url' ? 'Booking / Calendar URL' : fieldLabel(key)}
+                        {key === 'booking_url' ? 'Booking / Calendar URL'
+                          : key === 'nav_secondary_button_label' ? 'Button Label (e.g. Donate)'
+                          : key === 'nav_secondary_button_url' ? 'Button URL'
+                          : fieldLabel(key)}
                       </label>
                       {isTextarea(key) ? (
                         <textarea

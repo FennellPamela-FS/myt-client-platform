@@ -55,6 +55,9 @@ export type SiteContent = {
   stat_2_label: string;
   stat_3_value: string;
   stat_3_label: string;
+  // Secondary nav button (e.g. Donate)
+  nav_secondary_button_label: string;
+  nav_secondary_button_url: string;
 };
 
 export type DisplayOptions = {
@@ -73,6 +76,7 @@ export type DisplayOptions = {
   hero_bg_mirror: boolean;
   about_layout: 'standard' | 'three-column';  // three-column = image | text | stats
   about_show_media: boolean;                   // show/hide the image in the about section
+  show_nav_secondary_button: boolean;          // show second CTA button in nav (e.g. Donate)
 };
 
 export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
@@ -91,6 +95,7 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   hero_bg_mirror: false,
   about_layout: 'standard',
   about_show_media: true,
+  show_nav_secondary_button: false,
 };
 
 export type ClientSite = {
