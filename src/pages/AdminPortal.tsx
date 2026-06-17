@@ -100,6 +100,40 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   const [authChecked, setAuthChecked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Custom domain editing
+  const [domainDraft, setDomainDraft]   = useState('');
+  const [domainSaving, setDomainSaving] = useState(false);
+  const [domainSaved, setDomainSaved]   = useState(false);
+  const [domainError, setDomainError]   = useState('');
+
+  async function saveCustomDomain() {
+    if (!site) return;
+    const cleaned = domainDraft.trim().replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase();
+    setDomainSaving(true);
+    setDomainError('');
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-client-domain`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': import.meta.env.VITE_ADMIN_SECRET ?? '' },
+          body: JSON.stringify({ siteId: site.id, domain: cleaned }),
+        }
+      );
+      const data = await res.json() as { error?: string };
+      if (!res.ok) {
+        setDomainError(data.error ?? 'Save failed — try again.');
+      } else {
+        setSite(prev => prev ? { ...prev, custom_domain: cleaned || null } : prev);
+        setDomainSaved(true);
+        setTimeout(() => setDomainSaved(false), 3000);
+      }
+    } catch {
+      setDomainError('Network error — try again.');
+    }
+    setDomainSaving(false);
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) navigate('/admin/login');
@@ -739,8 +773,10 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                 {/* Custom domain */}
                 {activeSection === 'domain' && (
                   <div className="space-y-5">
-                    <div className="card">
-                      <h3 className="font-medium text-sm mb-3">Your Domain</h3>
+                    <div className="card space-y-4">
+                      <h3 className="font-medium text-sm">Your Domain</h3>
+
+                      {/* Current domain status */}
                       {site.custom_domain ? (
                         <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg bg-green-50 border border-green-200">
                           <Globe size={15} className="text-green-600 flex-shrink-0" />
@@ -752,15 +788,38 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                           <span className="text-sm text-muted-foreground">No custom domain connected yet</span>
                         </div>
                       )}
-                      <p className="text-xs text-muted-foreground mt-2">
-                        To connect or change your domain, contact your account manager.
-                      </p>
+
+                      {/* Domain input */}
+                      <div>
+                        <label className="block text-sm font-medium mb-1.5">
+                          {site.custom_domain ? 'Change Domain' : 'Connect a Domain'}
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={domainDraft}
+                            onChange={e => { setDomainDraft(e.target.value); setDomainError(''); setDomainSaved(false); }}
+                            onKeyDown={e => { if (e.key === 'Enter') saveCustomDomain(); }}
+                            placeholder="www.yourdomain.com"
+                            className="flex-1 px-3 py-2 rounded-md border border-input bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                          <button
+                            onClick={saveCustomDomain}
+                            disabled={domainSaving || !domainDraft.trim()}
+                            className="px-4 py-2 text-sm font-medium rounded-md bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-40 transition-colors whitespace-nowrap"
+                          >
+                            {domainSaved ? '✓ Saved' : domainSaving ? '…' : 'Save'}
+                          </button>
+                        </div>
+                        {domainError && <p className="text-xs text-red-600 mt-1.5">{domainError}</p>}
+                        <p className="text-xs text-muted-foreground mt-1.5">Enter without https:// — e.g. <span className="font-mono">www.yourbusiness.com</span></p>
+                      </div>
                     </div>
 
                     <div className="card space-y-4">
-                      <h3 className="font-medium text-sm">DNS Setup — What To Do</h3>
+                      <h3 className="font-medium text-sm">DNS Setup — Do This First</h3>
                       <p className="text-sm text-muted-foreground">
-                        Log in to your domain registrar (GoDaddy, Namecheap, Cloudflare, etc.) and add this record:
+                        Before saving your domain above, log in to your domain registrar (GoDaddy, Namecheap, Cloudflare, etc.) and add this DNS record:
                       </p>
                       <div className="rounded-lg bg-gray-900 text-gray-100 text-xs font-mono p-4 space-y-2.5">
                         <div className="flex gap-4">
@@ -781,8 +840,8 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                         </div>
                       </div>
                       <div className="space-y-1.5 text-xs text-muted-foreground">
-                        <p>1. Add the CNAME record above at your DNS registrar.</p>
-                        <p>2. Let your account manager know — they'll activate the domain on this end.</p>
+                        <p>1. Add the CNAME record above at your domain registrar.</p>
+                        <p>2. Enter your domain in the field above and hit Save.</p>
                         <p>3. DNS changes can take up to 48 hours to propagate globally.</p>
                       </div>
                     </div>
