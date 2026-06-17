@@ -29,13 +29,14 @@ function Toggle({ on, color }: { on: boolean; color: string }) {
 // ─── Section groups ───────────────────────────────────────────────────────────
 
 const NAV_SECTIONS = [
-  { id: 'branding', label: 'Branding', icon: Palette, fields: [] },
+  { id: 'branding',    label: 'Branding',    icon: Palette, fields: [] },
+  { id: 'navigation',  label: 'Navigation',  icon: Menu,    fields: [] },
   { id: 'hero', label: 'Hero Section', icon: Layout, fields: ['hero_headline', 'hero_subheadline', 'hero_cta_primary', 'hero_cta_secondary', 'hero_value_statement'] },
   { id: 'about', label: 'About', icon: Type, fields: ['about_headline', 'about_body', 'about_mission', 'about_cta_text', 'about_tagline', 'stat_1_value', 'stat_1_label', 'stat_2_value', 'stat_2_label', 'stat_3_value', 'stat_3_label'] },
   { id: 'services', label: 'Services', icon: Briefcase, fields: ['service_1_name', 'service_1_description', 'service_1_benefit', 'service_1_cta', 'service_2_name', 'service_2_description', 'service_2_benefit', 'service_2_cta', 'service_3_name', 'service_3_description', 'service_3_benefit', 'service_3_cta', 'service_4_name', 'service_4_description', 'service_4_benefit', 'service_4_cta'] },
   { id: 'benefits', label: 'Why Us', icon: Star, fields: ['benefit_1_title', 'benefit_1_description', 'benefit_2_title', 'benefit_2_description', 'benefit_3_title', 'benefit_3_description', 'benefit_4_title', 'benefit_4_description'] },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare, fields: ['testimonial_1_quote', 'testimonial_1_name', 'testimonial_1_role', 'testimonial_2_quote', 'testimonial_2_name', 'testimonial_2_role'] },
-  { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url', 'nav_secondary_button_label', 'nav_secondary_button_url'] },
+  { id: 'cta', label: 'Call to Action', icon: Megaphone, fields: ['cta_section_headline', 'cta_section_body', 'cta_button_text', 'cta_urgency_line', 'booking_url'] },
   { id: 'gallery', label: 'Photo Gallery', icon: Image, fields: [] },
   { id: 'contact_info', label: 'Contact Info', icon: Phone, fields: ['business_phone', 'business_address', 'business_hours', 'contact_form_title', 'contact_form_subtitle', 'contact_form_button_text'] },
   { id: 'seo', label: 'SEO & Brand', icon: Search, fields: ['brand_tagline', 'meta_description', 'business_email', 'social_instagram', 'social_facebook', 'social_twitter', 'social_linkedin'] },
@@ -399,39 +400,6 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                 </div>
 
-                {/* Navigation display — only shown when a logo is uploaded */}
-                {logoUrl && (
-                  <div className="card space-y-1">
-                    <h3 className="font-medium text-sm mb-2">Navigation Display</h3>
-                    <p className="text-xs text-muted-foreground mb-3">Controls what appears beside your logo in the site header</p>
-                    {([
-                      {
-                        key: 'show_nav_name' as const,
-                        label: 'Show business name',
-                        hint: 'Display your business name alongside the logo',
-                      },
-                      {
-                        key: 'nav_show_tagline' as const,
-                        label: 'Show tagline below logo',
-                        hint: content?.brand_tagline
-                          ? `"${content.brand_tagline}"`
-                          : 'Set your tagline in SEO & Brand',
-                      },
-                    ]).map(({ key, label, hint }) => (
-                      <button
-                        key={key}
-                        onClick={() => { setDisplayOptions(prev => ({ ...prev, [key]: !prev[key] })); setSaved(false); }}
-                        className="w-full flex items-center justify-between py-2.5 text-sm border-t first:border-t-0"
-                      >
-                        <div className="text-left">
-                          <p className="font-medium">{label}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
-                        </div>
-                        <Toggle on={!!displayOptions[key]} color={primaryColor} />
-                      </button>
-                    ))}
-                  </div>
-                )}
 
                 {/* Color pickers */}
                 <div className="card space-y-4">
@@ -848,11 +816,6 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   <div className="card space-y-3">
                     <h3 className="font-medium text-sm">Show / Hide</h3>
                     {([
-                      { key: 'show_nav_logo', label: 'Logo in navigation' },
-                      { key: 'show_nav_name', label: 'Business name in navigation' },
-                      { key: 'show_nav_secondary_button', label: 'Secondary nav button (e.g. Donate)' },
-                      { key: 'show_footer_logo', label: 'Logo in footer' },
-                      { key: 'show_footer_name', label: 'Business name in footer' },
                       { key: 'show_phone', label: 'Phone number' },
                       { key: 'show_address', label: 'Business address' },
                       { key: 'show_hours', label: 'Business hours' },
@@ -870,18 +833,84 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   </div>
                 )}
 
+                {/* Navigation tab — header, secondary button, footer */}
+                {activeSection === 'navigation' && (
+                  <div className="space-y-4">
+                    <div className="card space-y-1">
+                      <h3 className="font-medium text-sm mb-2">Header</h3>
+                      {([
+                        { key: 'show_nav_logo'  as const, label: 'Show logo' },
+                        { key: 'show_nav_name'  as const, label: 'Show business name' },
+                        { key: 'nav_show_tagline' as const, label: 'Show tagline below logo' },
+                      ]).map(({ key, label }) => (
+                        <button
+                          key={key}
+                          onClick={() => { setDisplayOptions(prev => ({ ...prev, [key]: !prev[key] })); setSaved(false); }}
+                          className="w-full flex items-center justify-between py-2 text-sm border-t first:border-t-0"
+                        >
+                          <span>{label}</span>
+                          <Toggle on={!!displayOptions[key]} color={primaryColor} />
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="card space-y-3">
+                      <h3 className="font-medium text-sm">Secondary Button</h3>
+                      <p className="text-xs text-muted-foreground">Add a second button in the nav bar — great for a Donate link or external booking page.</p>
+                      <button
+                        onClick={() => { setDisplayOptions(prev => ({ ...prev, show_nav_secondary_button: !prev.show_nav_secondary_button })); setSaved(false); }}
+                        className="w-full flex items-center justify-between py-2 text-sm"
+                      >
+                        <span>Show secondary button</span>
+                        <Toggle on={!!displayOptions.show_nav_secondary_button} color={primaryColor} />
+                      </button>
+                      {displayOptions.show_nav_secondary_button && (
+                        <div className="space-y-3 pt-1">
+                          {(['nav_secondary_button_label', 'nav_secondary_button_url'] as const).map(key => (
+                            <div key={key}>
+                              <label className="block text-sm font-medium mb-1.5">
+                                {key === 'nav_secondary_button_label' ? 'Button Label (e.g. Donate)' : 'Button URL'}
+                              </label>
+                              <input
+                                type="text"
+                                value={(edits[key] ?? content?.[key] ?? '') as string}
+                                onChange={e => handleChange(key, e.target.value)}
+                                placeholder={key === 'nav_secondary_button_label' ? 'Donate' : 'https://…'}
+                                className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="card space-y-1">
+                      <h3 className="font-medium text-sm mb-2">Footer</h3>
+                      {([
+                        { key: 'show_footer_logo' as const, label: 'Show logo' },
+                        { key: 'show_footer_name' as const, label: 'Show business name' },
+                      ]).map(({ key, label }) => (
+                        <button
+                          key={key}
+                          onClick={() => { setDisplayOptions(prev => ({ ...prev, [key]: !prev[key] })); setSaved(false); }}
+                          className="w-full flex items-center justify-between py-2 text-sm border-t first:border-t-0"
+                        >
+                          <span>{label}</span>
+                          <Toggle on={!!displayOptions[key]} color={primaryColor} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {currentSection.fields.map(key => {
                   // Hide booking_url field when booking CTA is disabled
                   if (key === 'booking_url' && !displayOptions.use_booking_cta) return null;
-                  if ((key === 'nav_secondary_button_label' || key === 'nav_secondary_button_url') && !displayOptions.show_nav_secondary_button) return null;
                   const currentVal = (edits[key as keyof SiteContent] ?? content?.[key as keyof SiteContent] ?? '') as string;
                   return (
                     <div key={key}>
                       <label className="block text-sm font-medium mb-1.5">
-                        {key === 'booking_url' ? 'Booking / Calendar URL'
-                          : key === 'nav_secondary_button_label' ? 'Button Label (e.g. Donate)'
-                          : key === 'nav_secondary_button_url' ? 'Button URL'
-                          : fieldLabel(key)}
+                        {key === 'booking_url' ? 'Booking / Calendar URL' : fieldLabel(key)}
                       </label>
                       {isTextarea(key) ? (
                         <textarea
