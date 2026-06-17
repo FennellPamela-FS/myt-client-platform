@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Phone, MapPin, Clock } from 'lucide-react';
+import { Settings, Phone, MapPin, Clock, Briefcase, Zap, Star, Users } from 'lucide-react';
 import type { SiteContent, SiteBranding, ThemeSelection, DisplayOptions } from '../../types/database';
 import { DEFAULT_DISPLAY_OPTIONS, CULINARY_CATEGORIES } from '../../types/database';
 import CulinaryTemplate from '../culinary/CulinaryTemplate';
@@ -546,55 +546,117 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
       )}
 
       {/* ── Services ───────────────────────────────────────────────────── */}
-      <section id="services" className={`py-24 px-6 ${tc.sectionBg}`}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
-              Services
-            </h2>
-            <div className="w-16 h-1 mx-auto" style={{ backgroundColor: branding.primaryColor }} />
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(n => {
-              const name = content[`service_${n}_name` as keyof SiteContent];
-              const desc = content[`service_${n}_description` as keyof SiteContent];
-              const benefit = content[`service_${n}_benefit` as keyof SiteContent];
-              const cta = content[`service_${n}_cta` as keyof SiteContent];
-              if (!name) return null;
-              return (
-                <div key={n} className={`flex flex-col gap-4 ${tc.cardClass} overflow-hidden`}>
-                  {/* Innovative: gradient top bar */}
-                  {isInnovative && (
-                    <div className="h-0.5 w-full -mt-px"
-                      style={{ background: n % 2 === 1
-                        ? `linear-gradient(90deg, ${branding.primaryColor}, ${branding.accentColor})`
-                        : `linear-gradient(90deg, ${branding.accentColor}, ${branding.primaryColor})` }} />
-                  )}
-                  <div className="p-6 flex flex-col gap-4 flex-1">
-                  <div className={`w-10 h-10 flex items-center justify-center text-sm font-black ${isInnovative ? 'rounded' : 'rounded-lg'} text-white`}
-                    style={{ background: isInnovative
-                      ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})`
-                      : branding.primaryColor }}>
-                    {n}
-                  </div>
-                  <h3 className={`font-semibold text-lg ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}
-                    style={isInnovative ? { color: branding.primaryColor } : undefined}>{name}</h3>
-                  <p className={`text-sm flex-1 ${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>{desc}</p>
-                  <p className="text-xs font-semibold" style={{ color: isInnovative ? branding.accentColor : branding.primaryColor }}>{benefit}</p>
-                  <button
-                    onClick={() => handleServiceInquiry(name as string)}
-                    className={`text-xs transition-colors hover:opacity-80 ${tc.btnSecondaryClass} px-4 py-2 text-center`}
-                    style={{ borderColor: branding.primaryColor, color: branding.primaryColor }}
-                  >
-                    {cta}
-                  </button>
-                  </div>{/* close inner p-6 div for innovative */}
+      {opts.services_layout === 'icon-grid' ? (
+        <section id="services" className={`py-24 px-6 ${tc.sectionBg}`}>
+          <div className="max-w-7xl mx-auto flex flex-col gap-10">
+            {/* Header */}
+            <div className="flex flex-col items-center gap-4 text-center">
+              <h2 className={`text-3xl md:text-4xl font-semibold ${tc.headingClass} ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
+                Services
+              </h2>
+              <div className="w-16 h-1" style={{ backgroundColor: branding.primaryColor }} />
+            </div>
+            {/* Grid + image */}
+            <div className="flex lg:flex-row flex-col-reverse items-center xl:gap-16 lg:gap-10 gap-8">
+              {/* 2×2 icon grid */}
+              <div className="w-full grid md:grid-cols-2 grid-cols-1 lg:gap-8 gap-6">
+                {([
+                  { Icon: Briefcase },
+                  { Icon: Zap },
+                  { Icon: Star },
+                  { Icon: Users },
+                ] as { Icon: React.ComponentType<{ size: number; style: React.CSSProperties }> }[]).map(({ Icon }, i) => {
+                  const n = i + 1;
+                  const name = content[`service_${n}_name` as keyof SiteContent];
+                  const desc = content[`service_${n}_description` as keyof SiteContent];
+                  const cta  = content[`service_${n}_cta`  as keyof SiteContent];
+                  if (!name) return null;
+                  return (
+                    <div key={n} className="group flex flex-col gap-4">
+                      <div
+                        className="w-[60px] h-[60px] rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:scale-105"
+                        style={{ backgroundColor: `${branding.primaryColor}26` }}
+                      >
+                        <Icon size={28} style={{ color: branding.primaryColor }} />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <h5 className={`text-lg font-medium leading-snug ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>{name}</h5>
+                        <p className={`text-sm leading-relaxed ${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>{desc}</p>
+                      </div>
+                      <button
+                        onClick={() => handleServiceInquiry(name as string)}
+                        className="text-xs font-semibold self-start transition-opacity hover:opacity-70"
+                        style={{ color: branding.primaryColor }}
+                      >
+                        {(cta as string) || 'Learn more →'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Side image */}
+              {branding.aboutImageUrl && (
+                <div className="lg:w-1/2 w-full flex-shrink-0">
+                  <img
+                    src={branding.aboutImageUrl}
+                    alt="Services"
+                    className={`w-full object-cover ${tc.radiusClass} max-h-[520px]`}
+                  />
                 </div>
-              );
-            })}
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section id="services" className={`py-24 px-6 ${tc.sectionBg}`}>
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className={`text-3xl md:text-4xl mb-4 ${tc.headingClass} ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}>
+                Services
+              </h2>
+              <div className="w-16 h-1 mx-auto" style={{ backgroundColor: branding.primaryColor }} />
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map(n => {
+                const name = content[`service_${n}_name` as keyof SiteContent];
+                const desc = content[`service_${n}_description` as keyof SiteContent];
+                const benefit = content[`service_${n}_benefit` as keyof SiteContent];
+                const cta = content[`service_${n}_cta` as keyof SiteContent];
+                if (!name) return null;
+                return (
+                  <div key={n} className={`flex flex-col gap-4 ${tc.cardClass} overflow-hidden`}>
+                    {isInnovative && (
+                      <div className="h-0.5 w-full -mt-px"
+                        style={{ background: n % 2 === 1
+                          ? `linear-gradient(90deg, ${branding.primaryColor}, ${branding.accentColor})`
+                          : `linear-gradient(90deg, ${branding.accentColor}, ${branding.primaryColor})` }} />
+                    )}
+                    <div className="p-6 flex flex-col gap-4 flex-1">
+                      <div className={`w-10 h-10 flex items-center justify-center text-sm font-black ${isInnovative ? 'rounded' : 'rounded-lg'} text-white`}
+                        style={{ background: isInnovative
+                          ? `linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor})`
+                          : branding.primaryColor }}>
+                        {n}
+                      </div>
+                      <h3 className={`font-semibold text-lg ${isDarkTheme ? 'text-neutral-100' : 'text-gray-900'}`}
+                        style={isInnovative ? { color: branding.primaryColor } : undefined}>{name}</h3>
+                      <p className={`text-sm flex-1 ${isDarkTheme ? 'text-neutral-400' : 'text-gray-500'}`}>{desc}</p>
+                      <p className="text-xs font-semibold" style={{ color: isInnovative ? branding.accentColor : branding.primaryColor }}>{benefit}</p>
+                      <button
+                        onClick={() => handleServiceInquiry(name as string)}
+                        className={`text-xs transition-colors hover:opacity-80 ${tc.btnSecondaryClass} px-4 py-2 text-center`}
+                        style={{ borderColor: branding.primaryColor, color: branding.primaryColor }}
+                      >
+                        {cta}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Gallery ────────────────────────────────────────────────────── */}
       {branding.galleryImages.length > 0 && (

@@ -552,6 +552,32 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   <p className="text-sm text-muted-foreground">Edit the content for this section</p>
                 </div>
 
+                {/* Services section layout controls */}
+                {activeSection === 'services' && (
+                  <div className="card space-y-4">
+                    <h3 className="font-medium text-sm">Services Layout</h3>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 mb-2">Section layout</p>
+                      <div className="flex rounded-lg border border-gray-200 p-1 gap-1">
+                        {([
+                          { value: 'standard',  label: 'Cards',     hint: '4-column service cards (default)' },
+                          { value: 'icon-grid', label: 'Icon Grid',  hint: '2×2 icon grid with side image' },
+                        ] as { value: 'standard' | 'icon-grid'; label: string; hint: string }[]).map(opt => (
+                          <button key={opt.value} title={opt.hint}
+                            onClick={() => { setDisplayOptions(prev => ({ ...prev, services_layout: opt.value })); setSaved(false); }}
+                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                              (displayOptions.services_layout ?? 'standard') === opt.value
+                                ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-700'
+                            }`}>
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">Icon Grid layout uses the photo from your About section alongside the services.</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* About section layout controls */}
                 {activeSection === 'about' && (
                   <div className="card space-y-4">
