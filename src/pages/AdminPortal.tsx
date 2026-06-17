@@ -925,6 +925,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                       { key: 'show_address', label: 'Business address' },
                       { key: 'show_hours', label: 'Business hours' },
                       { key: 'show_contact_form', label: 'Contact form section' },
+                      { key: 'show_engagement_options', label: 'Partner & Volunteer options in contact form' },
                     ] as { key: keyof DisplayOptions; label: string }[]).map(({ key, label }) => (
                       <button
                         key={key}

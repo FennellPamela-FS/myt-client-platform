@@ -77,6 +77,7 @@ export type DisplayOptions = {
   about_layout: 'standard' | 'three-column';  // three-column = image | text | stats
   about_show_media: boolean;                   // show/hide the image in the about section
   show_nav_secondary_button: boolean;          // show second CTA button in nav (e.g. Donate)
+  show_engagement_options: boolean;            // append "Become a Partner" + "Become a Volunteer" to service dropdown
 };
 
 export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
@@ -96,6 +97,7 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   about_layout: 'standard',
   about_show_media: true,
   show_nav_secondary_button: false,
+  show_engagement_options: false,
 };
 
 export type ClientSite = {

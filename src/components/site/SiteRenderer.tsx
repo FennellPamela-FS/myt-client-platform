@@ -852,6 +852,12 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                           const name = content[`service_${n}_name` as keyof SiteContent];
                           return name ? <option key={n} value={name}>{name}</option> : null;
                         })}
+                        {opts.show_engagement_options && (
+                          <>
+                            <option value="Become a Partner">Become a Partner</option>
+                            <option value="Become a Volunteer">Become a Volunteer</option>
+                          </>
+                        )}
                       </select>
                     </div>
                     <div>
