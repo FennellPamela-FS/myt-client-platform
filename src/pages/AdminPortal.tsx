@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { ClientSite, SiteContent, ThemeSelection, DisplayOptions } from '../types/database';
@@ -59,6 +59,52 @@ function fieldLabel(key: string) {
 function isTextarea(key: string) {
   return key.includes('body') || key.includes('quote') || key.includes('description') || key.includes('mission') || key.includes('meta');
 }
+
+const SOCIAL_CONFIG: Record<string, { label: string; color: string; placeholder: string; icon: ReactNode }> = {
+  social_instagram: {
+    label: 'Instagram',
+    color: '#E1306C',
+    placeholder: 'https://instagram.com/yourbusiness',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+    ),
+  },
+  social_facebook: {
+    label: 'Facebook',
+    color: '#1877F2',
+    placeholder: 'https://facebook.com/yourbusiness',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+      </svg>
+    ),
+  },
+  social_twitter: {
+    label: 'X (Twitter)',
+    color: '#000000',
+    placeholder: 'https://x.com/yourbusiness',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+    ),
+  },
+  social_linkedin: {
+    label: 'LinkedIn',
+    color: '#0A66C2',
+    placeholder: 'https://linkedin.com/company/yourbusiness',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/>
+        <circle cx="4" cy="4" r="2"/>
+      </svg>
+    ),
+  },
+};
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -965,6 +1011,39 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                 {currentSection.fields.map(key => {
                   // Hide booking_url field when booking CTA is disabled
                   if (key === 'booking_url' && !displayOptions.use_booking_cta) return null;
+
+                  // Social media fields — platform icons + URL inputs
+                  if (key in SOCIAL_CONFIG) {
+                    const cfg = SOCIAL_CONFIG[key];
+                    const currentVal = (edits[key as keyof SiteContent] ?? content?.[key as keyof SiteContent] ?? '') as string;
+                    return (
+                      <div key={key}>
+                        {key === 'social_instagram' && (
+                          <div className="border-t border-border pt-5 mb-5">
+                            <h3 className="text-sm font-semibold mb-0.5">Social Media</h3>
+                            <p className="text-xs text-muted-foreground">Paste your full profile URLs. Leave any field blank to hide that icon from your site footer.</p>
+                          </div>
+                        )}
+                        <label className="flex items-center gap-2 text-sm font-medium mb-1.5">
+                          <span
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-white flex-shrink-0"
+                            style={{ backgroundColor: cfg.color }}
+                          >
+                            {cfg.icon}
+                          </span>
+                          {cfg.label}
+                        </label>
+                        <input
+                          type="url"
+                          value={currentVal}
+                          onChange={e => handleChange(key, e.target.value)}
+                          placeholder={cfg.placeholder}
+                          className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </div>
+                    );
+                  }
+
                   const currentVal = (edits[key as keyof SiteContent] ?? content?.[key as keyof SiteContent] ?? '') as string;
                   return (
                     <div key={key}>
