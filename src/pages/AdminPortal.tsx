@@ -144,6 +144,8 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Custom domain editing
@@ -181,9 +183,16 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/admin/login');
-      else setAuthChecked(true);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) {
+        navigate('/admin/login');
+        return;
+      }
+      setSessionEmail(session.user.email?.toLowerCase() ?? null);
+      // Server-verified admin check (security definer fn behind RLS)
+      const { data: admin } = await supabase.rpc('is_platform_admin');
+      setIsPlatformAdmin(admin === true);
+      setAuthChecked(true);
     });
   }, [navigate]);
 
@@ -336,6 +345,29 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   if (!site) return (
     <div className="min-h-screen flex items-center justify-center">
       <p className="text-muted-foreground">Site not found.</p>
+    </div>
+  );
+
+  // Ownership gate — only the site's assigned email or a platform admin may
+  // enter. RLS (auth_update_own) is the enforcement layer; this is the UX.
+  const isOwner = !!sessionEmail && site.email?.toLowerCase() === sessionEmail;
+  if (!isOwner && !isPlatformAdmin) return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="card max-w-md w-full text-center py-10">
+        <Lock size={36} className="mx-auto mb-4 text-muted-foreground" />
+        <h1 className="text-lg font-bold mb-2">You don't have access to this site</h1>
+        <p className="text-muted-foreground text-sm mb-6">
+          You're signed in as <span className="font-medium text-foreground">{sessionEmail}</span>,
+          which isn't the admin email assigned to this site. If you believe this is a
+          mistake, contact your mytCreative administrator.
+        </p>
+        <button
+          onClick={async () => { await supabase.auth.signOut(); navigate('/admin/login'); }}
+          className="btn btn-primary"
+        >
+          Sign in with a different email
+        </button>
+      </div>
     </div>
   );
 
