@@ -160,11 +160,15 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
     setDomainSaving(true);
     setDomainError('');
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-client-domain`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-admin-secret': import.meta.env.VITE_ADMIN_SECRET ?? '' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token ?? ''}`,
+          },
           body: JSON.stringify({ siteId: site.id, domain: cleaned }),
         }
       );
