@@ -4,7 +4,12 @@ export type ThemeSelection =
   | 'wellness'
   | 'luxury'
   | 'minimalist'
-  | 'innovative';
+  | 'innovative'
+  | 'restorative';
+
+// Fonts loadable via the restorative theme's Google Fonts allowlist.
+// Keep in sync with GOOGLE_FONT_STACKS in components/site/SiteRenderer.tsx.
+export type BrandFont = 'Playfair Display' | 'Inter' | 'Noto Sans Display';
 
 export type SiteContent = {
   hero_headline: string;
@@ -124,6 +129,12 @@ export type ClientSite = {
   primary_color: string;
   secondary_color: string;
   accent_color: string;
+  background_color: string | null;
+  text_color: string | null;
+  muted_color: string | null;
+  font_display: string | null;
+  font_body: string | null;
+  font_accent: string | null;
   generated_copy: SiteContent | null;
   custom_edits: Partial<SiteContent> | null;
   display_options: DisplayOptions | null;
@@ -142,6 +153,12 @@ export type SiteBranding = {
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
+  backgroundColor: string | null;
+  textColor: string | null;
+  mutedColor: string | null;
+  fontDisplay: string | null;
+  fontBody: string | null;
+  fontAccent: string | null;
   theme: ThemeSelection;
   heroImageUrl: string | null;
   heroVideoUrl: string | null;
@@ -160,6 +177,12 @@ export function resolveBranding(site: ClientSite): SiteBranding {
     primaryColor: site.primary_color || '#4EBCED',
     secondaryColor: site.secondary_color || '#464E54',
     accentColor: site.accent_color || '#45899E',
+    backgroundColor: site.background_color ?? null,
+    textColor: site.text_color ?? null,
+    mutedColor: site.muted_color ?? null,
+    fontDisplay: site.font_display ?? null,
+    fontBody: site.font_body ?? null,
+    fontAccent: site.font_accent ?? null,
     theme: site.theme || 'professional',
     heroImageUrl: site.hero_image_url ?? null,
     heroVideoUrl: site.hero_video_url ?? null,

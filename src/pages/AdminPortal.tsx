@@ -50,7 +50,10 @@ const THEMES: { value: ThemeSelection; label: string; desc: string }[] = [
   { value: 'luxury',       label: 'Luxury',        desc: 'Premium, refined, elegant' },
   { value: 'minimalist',   label: 'Minimalist',    desc: 'Simple, spacious, focused' },
   { value: 'innovative',   label: 'Innovative',    desc: 'Tech-forward, bold, dark navy — high-contrast impact' },
+  { value: 'restorative',  label: 'Restorative',   desc: 'Calm, editorial, 6-color + custom typography support' },
 ];
+
+const FONT_OPTIONS = ['Playfair Display', 'Inter', 'Noto Sans Display'] as const;
 
 function fieldLabel(key: string) {
   return key.replace(/_\d+_?/g, ' ').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).trim();
@@ -124,6 +127,12 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   const [primaryColor, setPrimaryColor] = useState('#4EBCED');
   const [secondaryColor, setSecondaryColor] = useState('#464E54');
   const [accentColor, setAccentColor] = useState('#45899E');
+  const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
+  const [textColor, setTextColor] = useState<string | null>(null);
+  const [mutedColor, setMutedColor] = useState<string | null>(null);
+  const [fontDisplay, setFontDisplay] = useState<string | null>(null);
+  const [fontBody, setFontBody] = useState<string | null>(null);
+  const [fontAccent, setFontAccent] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeSelection>('professional');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
@@ -211,6 +220,12 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
           setPrimaryColor(s.primary_color || '#4EBCED');
           setSecondaryColor(s.secondary_color || '#464E54');
           setAccentColor(s.accent_color || '#45899E');
+          setBackgroundColor(s.background_color ?? null);
+          setTextColor(s.text_color ?? null);
+          setMutedColor(s.muted_color ?? null);
+          setFontDisplay(s.font_display ?? null);
+          setFontBody(s.font_body ?? null);
+          setFontAccent(s.font_accent ?? null);
           setTheme(s.theme || 'professional');
           setLogoUrl(s.logo_url ?? null);
           setHeroImageUrl(s.hero_image_url ?? null);
@@ -318,6 +333,12 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
         primary_color: primaryColor,
         secondary_color: secondaryColor,
         accent_color: accentColor,
+        background_color: backgroundColor,
+        text_color: textColor,
+        muted_color: mutedColor,
+        font_display: fontDisplay,
+        font_body: fontBody,
+        font_accent: fontAccent,
         theme,
         logo_url: logoUrl,
         hero_image_url: heroImageUrl,
@@ -373,7 +394,11 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
 
   const content = resolveSiteContent(site);
   const liveContent = content ? { ...content, ...edits } as SiteContent : null;
-  const liveBranding = { logoUrl, primaryColor, secondaryColor, accentColor, theme, heroImageUrl, heroVideoUrl, aboutImageUrl, galleryImages: galleryImages.filter(Boolean) };
+  const liveBranding = {
+    logoUrl, primaryColor, secondaryColor, accentColor,
+    backgroundColor, textColor, mutedColor, fontDisplay, fontBody, fontAccent,
+    theme, heroImageUrl, heroVideoUrl, aboutImageUrl, galleryImages: galleryImages.filter(Boolean),
+  };
   const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
 
   return (
@@ -573,6 +598,62 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                     ))}
                   </div>
                 </div>
+
+                {/* Restorative theme: extended colors + fonts */}
+                {theme === 'restorative' && (
+                  <>
+                    <div className="card space-y-4">
+                      <h3 className="font-medium text-sm">Extended Colors</h3>
+                      {[
+                        { label: 'Background', value: backgroundColor, setter: setBackgroundColor, hint: 'Page background, negative space' },
+                        { label: 'Text', value: textColor, setter: setTextColor, hint: 'Headings, high-contrast text' },
+                        { label: 'Muted', value: mutedColor, setter: setMutedColor, hint: 'Secondary copy, captions' },
+                      ].map(({ label, value, setter, hint }) => (
+                        <div key={label}>
+                          <label className="block text-sm font-medium mb-1.5">{label} Color</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={value || '#ffffff'}
+                              onChange={e => { setter(e.target.value); setSaved(false); }}
+                              className="h-10 w-10 rounded-lg border cursor-pointer"
+                            />
+                            <input
+                              type="text"
+                              value={value ?? ''}
+                              onChange={e => { setter(e.target.value || null); setSaved(false); }}
+                              className="flex-1 px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring font-mono"
+                              placeholder="unset — falls back to default theme look"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="card space-y-4">
+                      <h3 className="font-medium text-sm">Typography</h3>
+                      {[
+                        { label: 'Display Font', value: fontDisplay, setter: setFontDisplay, hint: 'Headlines' },
+                        { label: 'Body Font', value: fontBody, setter: setFontBody, hint: 'Paragraph copy' },
+                        { label: 'Accent Font', value: fontAccent, setter: setFontAccent, hint: 'Eyebrow labels, uppercase tags' },
+                      ].map(({ label, value, setter, hint }) => (
+                        <div key={label}>
+                          <label className="block text-sm font-medium mb-1.5">{label}</label>
+                          <select
+                            value={value ?? ''}
+                            onChange={e => { setter(e.target.value || null); setSaved(false); }}
+                            className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          >
+                            <option value="">Default (system font)</option>
+                            {FONT_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}
+                          </select>
+                          <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
 

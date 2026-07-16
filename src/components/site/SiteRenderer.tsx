@@ -114,6 +114,29 @@ const THEME_CONFIGS: Record<ThemeSelection, ThemeConfig> = {
     cardClass: 'bg-slate-900 border border-slate-700 rounded',
     radiusClass: 'rounded',
   },
+  // Calm/editorial shape built for per-client color + font overrides
+  // (background_color/text_color/muted_color/font_* columns). Falls back to
+  // the same light defaults as `professional` when those fields are unset.
+  restorative: {
+    heroLayout: 'split',
+    headingClass: 'font-semibold tracking-tight',
+    subheadingClass: 'font-light',
+    btnPrimaryClass: 'rounded-lg font-medium',
+    btnSecondaryClass: 'rounded-lg border font-medium',
+    sectionBg: 'bg-white',
+    altSectionBg: 'bg-gray-50',
+    cardClass: 'bg-white border border-black/5 shadow-sm rounded-2xl',
+    radiusClass: 'rounded-2xl',
+  },
+};
+
+// Google Fonts allowlist for the restorative theme's font_display/font_body/
+// font_accent columns — never interpolate those DB values directly into a
+// URL; only load a family present in this map.
+const GOOGLE_FONT_STACKS: Record<string, string> = {
+  'Playfair Display': 'Playfair+Display:wght@400;500;600;700',
+  'Inter': 'Inter:wght@300;400;500;600;700',
+  'Noto Sans Display': 'Noto+Sans+Display:wght@500;600;700',
 };
 
 // ─── Industry hero images (Unsplash, royalty-free) ──────────────────────────
@@ -169,13 +192,24 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
   }
 
   const tc = THEME_CONFIGS[branding.theme];
-  const isLuxury     = branding.theme === 'luxury';
-  const isCreative   = branding.theme === 'creative';
-  const isInnovative = branding.theme === 'innovative';
+  const isLuxury      = branding.theme === 'luxury';
+  const isCreative     = branding.theme === 'creative';
+  const isInnovative   = branding.theme === 'innovative';
+  const isRestorative  = branding.theme === 'restorative';
   // Both luxury and innovative use dark root backgrounds — light text required throughout
   const isDarkTheme  = isLuxury || isInnovative;
   // creative + luxury + innovative all use dark altSectionBg
   const isDarkAltBg  = isDarkTheme || isCreative;
+
+  // Google Fonts requested via the restorative theme's font_display/font_body/
+  // font_accent columns — only families present in GOOGLE_FONT_STACKS load.
+  const requestedFonts = [branding.fontDisplay, branding.fontBody, branding.fontAccent]
+    .filter((f): f is string => !!f && f in GOOGLE_FONT_STACKS);
+  const googleFontsHref = requestedFonts.length
+    ? `https://fonts.googleapis.com/css2?${[...new Set(requestedFonts)]
+        .map(f => `family=${GOOGLE_FONT_STACKS[f]}`)
+        .join('&')}&display=swap`
+    : null;
   const opts = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };
   const [formSent, setFormSent]       = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -234,16 +268,38 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
     '--brand-primary': branding.primaryColor,
     '--brand-secondary': branding.secondaryColor,
     '--brand-accent': branding.accentColor,
+    ...(branding.fontDisplay ? { '--font-display': `'${branding.fontDisplay}'` } : {}),
+    ...(branding.fontBody ? { '--font-body': `'${branding.fontBody}'` } : {}),
+    ...(branding.fontAccent ? { '--font-accent': `'${branding.fontAccent}'` } : {}),
+    ...(branding.fontBody ? { fontFamily: 'var(--font-body)' } : {}),
+    ...(branding.backgroundColor ? { backgroundColor: branding.backgroundColor } : {}),
+    ...(branding.textColor ? { color: branding.textColor } : {}),
   } as React.CSSProperties;
 
   const textColor = isDarkTheme ? 'text-neutral-100' : 'text-gray-900';
+  const textColorStyle = branding.textColor ? { color: branding.textColor } : undefined;
   const mutedColor = isDarkTheme ? 'text-neutral-400' : 'text-gray-500';
+  const mutedColorStyle = branding.mutedColor ? { color: branding.mutedColor } : undefined;
 
   return (
-    <div style={cssVars} className={`font-sans ${isDarkTheme ? `${tc.sectionBg} text-neutral-100` : 'bg-white text-gray-900'}`}>
+    <div
+      data-theme={branding.theme}
+      style={cssVars}
+      className={`font-sans ${isDarkTheme ? `${tc.sectionBg} text-neutral-100` : 'bg-white text-gray-900'}`}
+    >
+      {googleFontsHref && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link rel="stylesheet" href={googleFontsHref} />
+        </>
+      )}
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <header className={`sticky top-0 z-50 ${isDarkTheme ? `${tc.sectionBg} border-b ${isInnovative ? 'border-slate-800' : 'border-neutral-800'}` : 'bg-white border-b border-gray-100 shadow-sm'}`}>
+      <header
+        className={`sticky top-0 z-50 ${isDarkTheme ? `${tc.sectionBg} border-b ${isInnovative ? 'border-slate-800' : 'border-neutral-800'}` : 'bg-white border-b border-gray-100 shadow-sm'}`}
+        style={isRestorative && branding.backgroundColor ? { backgroundColor: branding.backgroundColor } : undefined}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Icon or logo */}
@@ -380,13 +436,13 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                 style={{ color: branding.primaryColor }}>
                 {content.brand_tagline}
               </p>
-              <h1 className={`text-4xl md:text-6xl mb-6 leading-tight ${tc.headingClass} ${textColor}`}>
+              <h1 className={`text-4xl md:text-6xl mb-6 leading-tight ${tc.headingClass} ${textColor}`} style={textColorStyle}>
                 {content.hero_headline}
               </h1>
-              <p className={`text-xl mb-4 ${mutedColor} ${tc.subheadingClass}`}>
+              <p className={`text-xl mb-4 ${mutedColor} ${tc.subheadingClass}`} style={mutedColorStyle}>
                 {content.hero_subheadline}
               </p>
-              <p className={`text-base mb-10 ${mutedColor}`}>
+              <p className={`text-base mb-10 ${mutedColor}`} style={mutedColorStyle}>
                 {content.hero_value_statement}
               </p>
               <div className="flex flex-wrap gap-4">
