@@ -37,6 +37,18 @@
   }
 }
 
+/* Restorative theme: per-client font overrides (--font-* set via inline style
+   on the site root by SiteRenderer). Scoped to [data-theme="restorative"] so
+   no other theme/client is affected. */
+[data-theme="restorative"] h1,
+[data-theme="restorative"] h2,
+[data-theme="restorative"] h3 {
+  font-family: var(--font-display), serif;
+}
+[data-theme="restorative"] .uppercase {
+  font-family: var(--font-accent), sans-serif;
+}
+
 @layer components {
   .btn {
     @apply inline-flex items-center justify-center px-5 py-2.5 rounded-md font-medium transition-all duration-200 text-sm;
