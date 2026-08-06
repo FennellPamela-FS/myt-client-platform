@@ -938,7 +938,14 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
             <div className="grid md:grid-cols-2 gap-12">
               {/* Form */}
               <div className={`p-8 ${tc.cardClass}`}>
-                {formSent ? (
+                {opts.use_custom_form_embed && content.contact_form_embed_url ? (
+                  <iframe
+                    src={content.contact_form_embed_url}
+                    title="Contact form"
+                    className="w-full border-0"
+                    style={{ minHeight: '560px' }}
+                  />
+                ) : formSent ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"
                       style={{ backgroundColor: `${branding.primaryColor}22`, color: branding.primaryColor }}>

@@ -1098,6 +1098,38 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                   </div>
                 )}
 
+                {/* Custom embedded form (e.g. GHL) */}
+                {activeSection === 'contact_info' && displayOptions.show_contact_form && (
+                  <div className="card space-y-3">
+                    <h3 className="font-medium text-sm">Lead Form Source</h3>
+                    <button
+                      onClick={() => { setDisplayOptions(prev => ({ ...prev, use_custom_form_embed: !prev.use_custom_form_embed })); setSaved(false); }}
+                      className="w-full flex items-center justify-between py-2 text-sm"
+                    >
+                      <div>
+                        <p className="font-medium text-left">Use an embedded form instead</p>
+                        <p className="text-xs text-muted-foreground text-left">Replaces the built-in contact form with a form embedded from GoHighLevel or another provider</p>
+                      </div>
+                      <Toggle on={displayOptions.use_custom_form_embed} color={primaryColor} />
+                    </button>
+                    {displayOptions.use_custom_form_embed && (
+                      <div className="space-y-2 pt-1">
+                        <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+                          In GHL, open your form's embed code and copy the <strong>iframe's src URL</strong> (starts with https://). Paste just that URL below — not the full embed snippet.
+                        </p>
+                        <label className="block text-sm font-medium mb-1.5">Embedded Form URL</label>
+                        <input
+                          type="url"
+                          value={(edits.contact_form_embed_url ?? content?.contact_form_embed_url ?? '') as string}
+                          onChange={e => handleChange('contact_form_embed_url', e.target.value)}
+                          placeholder="https://api.leadconnectorhq.com/widget/form/…"
+                          className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Navigation tab — header, secondary button, footer */}
                 {activeSection === 'navigation' && (
                   <div className="space-y-4">
