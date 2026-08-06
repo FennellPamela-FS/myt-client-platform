@@ -44,6 +44,9 @@ export type SiteContent = {
   contact_form_title: string;
   contact_form_subtitle: string;
   contact_form_button_text: string;
+  // GHL (or other) embeddable form src URL — used in place of the built-in
+  // contact form when display_options.use_custom_form_embed is on.
+  contact_form_embed_url: string;
   booking_url: string;
   business_email: string;
   industry_category: string;
@@ -75,6 +78,7 @@ export type DisplayOptions = {
   show_address: boolean;
   show_hours: boolean;
   show_contact_form: boolean;
+  use_custom_form_embed: boolean;      // show an embedded external form (e.g. GHL) instead of the built-in contact form
   show_nav_logo: boolean;
   show_nav_name: boolean;
   nav_show_tagline: boolean;   // show brand_tagline beneath logo in the nav header
@@ -98,6 +102,7 @@ export const DEFAULT_DISPLAY_OPTIONS: DisplayOptions = {
   show_address: true,
   show_hours: true,
   show_contact_form: true,
+  use_custom_form_embed: false,
   show_nav_logo: true,
   show_nav_name: true,
   nav_show_tagline: false,
