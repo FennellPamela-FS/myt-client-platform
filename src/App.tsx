@@ -8,6 +8,7 @@ import AdminPortal from './pages/AdminPortal';
 import AdminCallback from './pages/AdminCallback';
 import RootPage from './pages/RootPage';
 import NotFound from './pages/NotFound';
+import Guide from './pages/Guide';
 
 // ── Custom-domain: auth callback fast path ────────────────────────────────────
 // Rendered immediately when the path is /admin/callback so that Supabase can
@@ -106,6 +107,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/"                 element={<RootPage />} />
+        <Route path="/guide"            element={<Guide />} />
         <Route path="/site/:slug"       element={<SitePage />} />
         <Route path="/site/:slug/admin" element={<AdminPortal />} />
         <Route path="/admin/login"      element={<AdminLogin />} />
