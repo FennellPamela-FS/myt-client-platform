@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
+const LOGO_URL =
+  'https://storage.googleapis.com/msgsndr/5WkCjdNQApiEdU3hlSMc/media/87a37730-dc12-4597-b730-6b76ecf537f6.png';
+
 // ─── Content model ─────────────────────────────────────────────────────────
 // Mirrors the `guide_sections.blocks` jsonb shape. Rows are edited directly
 // in the Supabase Table Editor — see supabase/migrations/20260807000001_create_guide_sections.sql.
@@ -242,21 +245,22 @@ export default function Guide() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Public+Sans:wght@400;500;600;700&display=swap" />
-
-      <header className="border-b bg-card">
-        <div className="max-w-5xl mx-auto px-6 py-10">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-md bg-primary flex-shrink-0" />
-            <span className="text-xs font-semibold text-muted-foreground tracking-wide">mytCreative · Client Admin Portal</span>
-          </div>
-          <h1 className="mb-3" style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 600, fontSize: 'clamp(2rem, 1.7rem + 1.3vw, 2.5rem)', lineHeight: 1.1 }}>
+    <div className="min-h-screen bg-muted/30">
+      <header
+        className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #464E54 0%, #2e3538 100%)' }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(78,188,237,0.12) 0%, transparent 70%)' }}
+        />
+        <div className="relative max-w-5xl mx-auto px-6 py-12">
+          <img src={LOGO_URL} alt="mytCreative" className="h-9 mb-6 select-none" draggable={false} />
+          <div className="w-10 h-0.5 rounded-full mb-6" style={{ backgroundColor: '#4EBCED' }} />
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
             Your Website Admin Guide
           </h1>
-          <p className="text-muted-foreground text-lg max-w-[46ch]">
+          <p className="text-base max-w-[46ch]" style={{ color: 'rgba(255,255,255,0.6)' }}>
             Everything you need to manage your site &mdash; branding, page content, your contact form, and your domain &mdash; no code required.
           </p>
         </div>
@@ -273,7 +277,7 @@ export default function Guide() {
       {!error && sections && (
         <>
           {/* Mobile jump nav */}
-          <div className="md:hidden sticky top-0 z-10 bg-background border-b px-4 py-2.5">
+          <div className="md:hidden sticky top-0 z-10 bg-muted/30 backdrop-blur border-b px-4 py-2.5">
             <select
               className="w-full text-sm font-medium px-3 py-2 rounded-md border border-input bg-background"
               value={activeId ?? ''}
@@ -310,18 +314,16 @@ export default function Guide() {
             </nav>
 
             <main className="min-w-0 py-8 pb-24">
-              {sections.map((s, i) => (
+              {sections.map(s => (
                 <section
                   key={s.slug}
                   id={s.slug}
                   ref={el => { sectionRefs.current[s.slug] = el; }}
-                  className={`py-9 ${i < sections.length - 1 ? 'border-b' : ''}`}
+                  className="bg-card rounded-xl border p-6 md:p-8 mb-5"
                   style={{ scrollMarginTop: '4.5rem' }}
                 >
-                  <p className="text-xs font-semibold text-muted-foreground/70 mb-1">{s.group_label}</p>
-                  <h2 className="mb-2" style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 600, fontSize: '1.5rem' }}>
-                    {s.title}
-                  </h2>
+                  <p className="text-xs font-semibold text-muted-foreground/70 mb-1.5 uppercase tracking-wide">{s.group_label}</p>
+                  <h2 className="text-xl font-bold tracking-tight mb-2">{s.title}</h2>
                   {s.dek && <p className="text-muted-foreground max-w-[60ch] mb-4"><Md text={s.dek} /></p>}
                   {s.blocks.map((b, bi) => <BlockView key={bi} block={b} />)}
                 </section>
