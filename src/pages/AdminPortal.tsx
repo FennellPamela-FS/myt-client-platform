@@ -427,6 +427,9 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
             <span className="text-muted-foreground text-sm hidden sm:block">· Admin</span>
           </div>
           <div className="flex items-center gap-2">
+            {/* Kairos pages have their own Preview and Save buttons, so the
+                site-wide ones are hidden there to avoid "which Save?" mistakes. */}
+            {activeSection !== 'kairos' && (
             <button
               onClick={() => setShowPreview(!showPreview)}
               className="btn btn-ghost text-sm gap-1.5 hidden md:flex"
@@ -434,15 +437,18 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
               {showPreview ? <EyeOff size={15} /> : <Eye size={15} />}
               {showPreview ? 'Hide Preview' : 'Show Preview'}
             </button>
+            )}
             <a href={slugProp ? '/' : `/site/${slug}`} target="_blank" rel="noreferrer"
               className="btn btn-ghost text-sm gap-1.5 hidden md:flex">
               <Eye size={15} /> View Live
             </a>
+            {activeSection !== 'kairos' && (
             <button onClick={handleSave} disabled={saving}
               className="btn btn-primary text-sm gap-1.5 disabled:opacity-60">
               <Save size={15} />
               {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save'}
             </button>
+            )}
             <button onClick={handleLogout} className="btn btn-ghost text-sm p-2">
               <LogOut size={15} />
             </button>
@@ -499,6 +505,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
               </div>
             )}
           </nav>
+          {activeSection !== 'kairos' && (
           <div className="p-3 border-t">
             <button onClick={handleSave} disabled={saving}
               className="w-full btn btn-primary text-sm justify-center disabled:opacity-60">
@@ -506,11 +513,17 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
               {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save Changes'}
             </button>
           </div>
+          )}
         </aside>
 
         {/* ── Edit panel ──────────────────────────────────────────────── */}
         <main className="flex-1 flex overflow-hidden">
-          <div className={`overflow-y-auto p-6 ${showPreview ? 'w-full md:w-[420px]' : 'w-full max-w-2xl mx-auto'} flex-shrink-0`}>
+          {/* Kairos screens have their own preview, so they use the full width. */}
+          <div className={`overflow-y-auto p-6 ${
+            activeSection === 'kairos'
+              ? 'w-full max-w-4xl mx-auto'
+              : showPreview ? 'w-full md:w-[420px]' : 'w-full max-w-2xl mx-auto'
+          } flex-shrink-0`}>
 
             {/* Branding section */}
             {activeSection === 'branding' && (
@@ -1289,7 +1302,6 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                 })}
               </div>
             )}
-          </div>
 
           {/* ── Kairos Award: editing one module page ─────────────────── */}
           {activeSection === 'kairos' && kairosEditing !== null && site && (
@@ -1399,8 +1411,10 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
             </div>
           )}
 
+          </div>
+
           {/* ── Live preview ──────────────────────────────────────────── */}
-          {showPreview && liveContent && (
+          {showPreview && liveContent && activeSection !== 'kairos' && (
             <div className="hidden md:flex flex-1 border-l flex-col overflow-hidden">
               <div className="px-4 py-2 bg-gray-100 border-b flex items-center gap-2 text-xs text-muted-foreground">
                 <div className="flex gap-1.5">
