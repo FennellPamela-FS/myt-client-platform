@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { ClientSite } from '../types/database';
 import { resolveSiteContent, resolveBranding } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
+import { fetchKairosNavLinks, type KairosNavLink } from '../lib/kairos';
 
 interface SitePageProps {
   /** Passed directly when rendering on a custom domain (bypasses useParams). */
@@ -19,6 +20,7 @@ export default function SitePage({ slug: slugProp }: SitePageProps) {
   const [agencySettings, setAgencySettings] = useState<AgencySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [kairosLinks, setKairosLinks] = useState<KairosNavLink[]>([]);
 
   useEffect(() => {
     if (!slug) return;
@@ -27,11 +29,27 @@ export default function SitePage({ slug: slugProp }: SitePageProps) {
       supabase.from('agency_settings').select('agency_name, agency_website_url, show_powered_by').maybeSingle(),
     ]).then(([siteRes, agencyRes]) => {
       if (siteRes.error || !siteRes.data) setNotFound(true);
-      else setSite(siteRes.data as unknown as ClientSite);
+      else {
+        const loaded = siteRes.data as unknown as ClientSite;
+        setSite(loaded);
+        // Kairos Award pages: only published pages of unlocked modules come back.
+        if ((loaded.bonus_page_allocation ?? 0) > 0) {
+          fetchKairosNavLinks(loaded.id, slug).then(setKairosLinks);
+        }
+      }
       if (agencyRes.data) setAgencySettings(agencyRes.data as AgencySettings);
       setLoading(false);
     });
   }, [slug]);
+
+  // Arriving from another page with a #section link (e.g. a Kairos page's
+  // "Get in touch" button): scroll there once the content has rendered.
+  useEffect(() => {
+    if (loading || !window.location.hash) return;
+    const id = window.location.hash.slice(1);
+    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 150);
+    return () => window.clearTimeout(t);
+  }, [loading]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -69,6 +87,7 @@ export default function SitePage({ slug: slugProp }: SitePageProps) {
         siteId={site.id}
         displayOptions={site.display_options}
         agencySettings={agencySettings}
+        extraNavLinks={kairosLinks}
       />
     </div>
   );

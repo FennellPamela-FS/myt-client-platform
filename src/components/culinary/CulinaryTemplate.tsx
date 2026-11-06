@@ -24,12 +24,14 @@ interface Props {
   slug?: string;
   siteId: string;
   displayOptions?: DisplayOptions | null;
+  /** Published Kairos Award pages (e.g. Our Story), shown in the menus. */
+  extraNavLinks?: { label: string; href: string }[];
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function CulinaryTemplate({
-  content, branding, businessName, slug, siteId, displayOptions,
+  content, branding, businessName, slug, siteId, displayOptions, extraNavLinks = [],
 }: Props) {
   const opts   = { ...DEFAULT_DISPLAY_OPTIONS, ...(displayOptions ?? {}) };
   const pri    = branding.primaryColor;
@@ -86,6 +88,12 @@ export default function CulinaryTemplate({
                 {item}
               </a>
             ))}
+            {extraNavLinks.map(link => (
+              <a key={link.href} href={link.href}
+                className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
+                {link.label}
+              </a>
+            ))}
           </nav>
 
           {/* Desktop CTA */}
@@ -109,6 +117,13 @@ export default function CulinaryTemplate({
                 onClick={() => setMobileOpen(false)}
                 className="block text-sm font-medium text-gray-700 py-2">
                 {item}
+              </a>
+            ))}
+            {extraNavLinks.map(link => (
+              <a key={link.href} href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm font-medium text-gray-700 py-2">
+                {link.label}
               </a>
             ))}
             <a href="#events" onClick={() => setMobileOpen(false)}
