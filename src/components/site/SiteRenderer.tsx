@@ -133,7 +133,8 @@ const THEME_CONFIGS: Record<ThemeSelection, ThemeConfig> = {
 // Google Fonts allowlist for the restorative theme's font_display/font_body/
 // font_accent columns — never interpolate those DB values directly into a
 // URL; only load a family present in this map.
-const GOOGLE_FONT_STACKS: Record<string, string> = {
+// eslint-disable-next-line react-refresh/only-export-components -- shared with Kairos pages
+export const GOOGLE_FONT_STACKS: Record<string, string> = {
   'Playfair Display': 'Playfair+Display:wght@400;500;600;700',
   'Inter': 'Inter:wght@300;400;500;600;700',
   'Noto Sans Display': 'Noto+Sans+Display:wght@500;600;700',
@@ -172,11 +173,13 @@ type Props = {
   siteId?: string;
   displayOptions?: DisplayOptions | null;
   agencySettings?: AgencySettings | null;
+  /** Published Kairos Award pages (e.g. Our Story), shown in the menu and footer. */
+  extraNavLinks?: { label: string; href: string }[];
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function SiteRenderer({ content, branding, businessName, slug, siteId, displayOptions, agencySettings }: Props) {
+export default function SiteRenderer({ content, branding, businessName, slug, siteId, displayOptions, agencySettings, extraNavLinks = [] }: Props) {
   // ── Culinary vertical → dedicated template ──────────────────────────────────
   if (siteId && CULINARY_CATEGORIES.has(content.industry_category)) {
     return (
@@ -187,6 +190,7 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
         slug={slug ?? ''}
         siteId={siteId}
         displayOptions={displayOptions}
+        extraNavLinks={extraNavLinks}
       />
     );
   }
@@ -337,6 +341,15 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                 className={`transition-colors ${isDarkTheme ? 'text-neutral-400 hover:text-neutral-100 tracking-wider uppercase text-xs' : 'text-gray-600 hover:text-gray-900'}`}
               >
                 {item}
+              </a>
+            ))}
+            {extraNavLinks.map(link => (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`transition-colors ${isDarkTheme ? 'text-neutral-400 hover:text-neutral-100 tracking-wider uppercase text-xs' : 'text-gray-600 hover:text-gray-900'}`}
+              >
+                {link.label}
               </a>
             ))}
           </nav>
@@ -1118,6 +1131,13 @@ export default function SiteRenderer({ content, branding, businessName, slug, si
                     <a href={link === 'Home' ? '#' : link === 'Contact' ? '#contact' : `#${link.toLowerCase()}`}
                       className="text-sm text-gray-400 hover:text-white transition-colors">
                       {link}
+                    </a>
+                  </li>
+                ))}
+                {extraNavLinks.map(link => (
+                  <li key={link.href}>
+                    <a href={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">
+                      {link.label}
                     </a>
                   </li>
                 ))}

@@ -5,6 +5,8 @@ import type { ClientSite, SiteContent, ThemeSelection, DisplayOptions } from '..
 import { DEFAULT_DISPLAY_OPTIONS } from '../types/database';
 import { resolveSiteContent } from '../types/database';
 import SiteRenderer from '../components/site/SiteRenderer';
+import KairosPageEditor from '../components/kairos/KairosPageEditor';
+import { KAIROS_LIVE_SLOTS, kairosModule } from '../lib/kairos';
 import {
   Save, LogOut, Eye, EyeOff, Upload, Palette,
   Layout, Type, Briefcase, Star, MessageSquare, Megaphone, Search, Menu, X, Phone, Image, Trash2, Globe,
@@ -148,6 +150,8 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
   const [displayOptions, setDisplayOptions] = useState<DisplayOptions>(DEFAULT_DISPLAY_OPTIONS);
 
   const [activeSection, setActiveSection] = useState('branding');
+  /** Kairos module page being edited (null = the module list). */
+  const [kairosEditing, setKairosEditing] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -474,7 +478,7 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
             {/* ── Kairos Award — shown only when bonus pages are allocated ── */}
             {(site?.bonus_page_allocation ?? 0) > 0 ? (
               <button
-                onClick={() => { setActiveSection('kairos'); setSidebarOpen(false); }}
+                onClick={() => { setActiveSection('kairos'); setKairosEditing(null); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left mt-1 border ${
                   activeSection === 'kairos'
                     ? 'bg-amber-500 text-white border-amber-500'
@@ -1283,8 +1287,18 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
             )}
           </div>
 
+          {/* ── Kairos Award: editing one module page ─────────────────── */}
+          {activeSection === 'kairos' && kairosEditing !== null && site && (
+            <KairosPageEditor
+              site={site}
+              slot={kairosEditing}
+              color={primaryColor}
+              onBack={() => setKairosEditing(null)}
+            />
+          )}
+
           {/* ── Kairos Award section ──────────────────────────────────── */}
-          {activeSection === 'kairos' && (
+          {activeSection === 'kairos' && kairosEditing === null && (
             <div className="space-y-6">
               {/* Award header */}
               <div className="rounded-2xl bg-gray-900 px-6 py-8 text-center">
@@ -1352,7 +1366,19 @@ export default function AdminPortal({ slug: slugProp }: AdminPortalProps) {
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 leading-relaxed">{description}</p>
-                      {unlocked && (
+                      {unlocked && KAIROS_LIVE_SLOTS.includes(slot) && (
+                        <div className="mt-3 flex flex-wrap items-center gap-3">
+                          <button
+                            onClick={() => setKairosEditing(slot)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500 text-white hover:bg-amber-600"
+                          >
+                            <Trophy size={12} />
+                            Edit Page
+                          </button>
+                          <span className="text-xs text-gray-400 font-mono">/{kairosModule(slot)?.path}</span>
+                        </div>
+                      )}
+                      {unlocked && !KAIROS_LIVE_SLOTS.includes(slot) && (
                         <button
                           disabled
                           className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-400/10 text-amber-600 border border-amber-200 cursor-not-allowed"

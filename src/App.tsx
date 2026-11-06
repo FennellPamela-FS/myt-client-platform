@@ -9,6 +9,11 @@ import AdminCallback from './pages/AdminCallback';
 import RootPage from './pages/RootPage';
 import NotFound from './pages/NotFound';
 import Guide from './pages/Guide';
+import KairosPage from './pages/KairosPage';
+import { KAIROS_MODULES, KAIROS_LIVE_SLOTS } from './lib/kairos';
+
+// Kairos Award pages that are built (Phase 1: Our Story).
+const LIVE_KAIROS_MODULES = KAIROS_MODULES.filter(m => KAIROS_LIVE_SLOTS.includes(m.slot));
 
 // ── Custom-domain: auth callback fast path ────────────────────────────────────
 // Rendered immediately when the path is /admin/callback so that Supabase can
@@ -79,6 +84,9 @@ function CustomDomainSiteApp() {
         <Route path="/admin"          element={<AdminPortal slug={slug!} />} />
         <Route path="/admin/login"    element={<AdminLogin />} />
         <Route path="/admin/callback" element={<AdminCallback />} />
+        {LIVE_KAIROS_MODULES.map(m => (
+          <Route key={m.path} path={`/${m.path}`} element={<KairosPage slug={slug!} slot={m.slot} />} />
+        ))}
         <Route path="*"               element={<SitePage    slug={slug!} />} />
       </Routes>
     </BrowserRouter>
@@ -110,6 +118,9 @@ function App() {
         <Route path="/guide"            element={<Guide />} />
         <Route path="/site/:slug"       element={<SitePage />} />
         <Route path="/site/:slug/admin" element={<AdminPortal />} />
+        {LIVE_KAIROS_MODULES.map(m => (
+          <Route key={m.path} path={`/site/:slug/${m.path}`} element={<KairosPage slot={m.slot} />} />
+        ))}
         <Route path="/admin/login"      element={<AdminLogin />} />
         <Route path="/admin/callback"   element={<AdminCallback />} />
         <Route path="*"                 element={<NotFound />} />

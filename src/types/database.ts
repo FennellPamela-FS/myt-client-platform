@@ -1,3 +1,5 @@
+import type { KairosSection } from '../lib/kairos';
+
 export type ThemeSelection =
   | 'professional'
   | 'creative'
@@ -232,6 +234,19 @@ export const CULINARY_CATEGORIES = new Set([
   'culinary', 'chef', 'caterer', 'food_and_beverage',
 ]);
 
+/** Kairos Award module page (see supabase/migrations/20261106000001_kairos_pages.sql). */
+export type KairosPageRow = {
+  id: string;
+  site_id: string;
+  module_slot: number;
+  title: string;
+  menu_label: string;
+  sections: KairosSection[];
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -251,6 +266,12 @@ export type Database = {
         Row: MenuItem;
         Insert: Omit<MenuItem, 'id' | 'created_at'>;
         Update: Partial<Omit<MenuItem, 'id' | 'created_at'>>;
+        Relationships: [];
+      };
+      kairos_pages: {
+        Row: KairosPageRow;
+        Insert: Pick<KairosPageRow, 'site_id' | 'module_slot'> & Partial<Pick<KairosPageRow, 'title' | 'menu_label' | 'sections' | 'published'>>;
+        Update: Partial<Pick<KairosPageRow, 'title' | 'menu_label' | 'sections' | 'published'>>;
         Relationships: [];
       };
     };
